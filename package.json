@@ -24,15 +24,24 @@
     ]
   },
   "dependencies": {
+    "@babel/plugin-transform-private-methods": "^7.25.9",
+    "@eslint/config-array": "^0.19.1",
+    "@eslint/object-schema": "^2.1.5",
+    "@jridgewell/sourcemap-codec": "^1.5.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "babel-preset-react-app": "^10.0.1",
     "core-js": "^3.40.0",
+    "glob": "^11.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.1.1",
     "react-scripts": "^5.0.1",
-    "serve": "^14.2.1"
+    "serve": "^14.2.1",
+    "svgo": "^3.3.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-syntax-flow": "^7.26.0",
     "@babel/plugin-transform-async-generator-functions": "^7.25.9",
     "@babel/plugin-transform-class-properties": "^7.25.9",
     "@babel/plugin-transform-dynamic-import": "^7.25.9",
@@ -43,9 +52,12 @@
     "@babel/plugin-transform-optional-catch-binding": "^7.25.9",
     "@babel/plugin-transform-optional-chaining": "^7.25.9",
     "@babel/plugin-transform-private-property-in-object": "^7.25.9",
+    "@babel/plugin-transform-react-jsx": "^7.25.9",
     "@babel/plugin-transform-unicode-property-regex": "^7.25.9",
+    "@testing-library/dom": "^7.31.2",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
-    "@testing-library/user-event": "^14.5.1"
+    "@testing-library/user-event": "^14.5.1",
+    "@types/react": "^18.3.18"
   }
 }
