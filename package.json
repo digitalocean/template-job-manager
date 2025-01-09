@@ -2,16 +2,6 @@
   "name": "sample-react",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/react": "^14.1.2",
-    "@testing-library/user-event": "^14.5.1",
-    "babel-preset-react-app": "^10.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "serve": "^14.2.1"
-  },
   "scripts": {
     "start": "node sammy.js; serve -s _static -l tcp://0.0.0.0:$PORT -n",
     "build": "rm -r _static 2>/dev/null; node sammy.js; react-scripts build && mv build _static",
@@ -33,7 +23,29 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "babel-preset-react-app": "^10.0.1",
+    "core-js": "^3.40.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.1.1",
+    "react-scripts": "^5.0.1",
+    "serve": "^14.2.1"
+  },
   "devDependencies": {
-    "@babel/plugin-transform-private-property-in-object": "^7.23.4"
+    "@babel/plugin-transform-async-generator-functions": "^7.25.9",
+    "@babel/plugin-transform-class-properties": "^7.25.9",
+    "@babel/plugin-transform-dynamic-import": "^7.25.9",
+    "@babel/plugin-transform-json-strings": "^7.25.9",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.25.9",
+    "@babel/plugin-transform-numeric-separator": "^7.25.9",
+    "@babel/plugin-transform-object-rest-spread": "^7.25.9",
+    "@babel/plugin-transform-optional-catch-binding": "^7.25.9",
+    "@babel/plugin-transform-optional-chaining": "^7.25.9",
+    "@babel/plugin-transform-private-property-in-object": "^7.25.9",
+    "@babel/plugin-transform-unicode-property-regex": "^7.25.9",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1"
   }
 }
