@@ -7,6 +7,8 @@
     "features": {
         "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/elanhasson/devcontainer-features/digitalocean-doctl-cli-persistence:1": {},
+        "ghcr.io/devcontainers-extra/features/digitalocean-cli:1": {},
     }
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
