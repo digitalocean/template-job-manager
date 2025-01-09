@@ -24,7 +24,6 @@
     ]
   },
   "dependencies": {
-    "@babel/plugin-transform-private-methods": "^7.25.9",
     "@eslint/config-array": "^0.19.1",
     "@eslint/object-schema": "^2.1.5",
     "@jridgewell/sourcemap-codec": "^1.5.0",
@@ -41,6 +40,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-methods": "^7.25.9",
     "@babel/plugin-syntax-flow": "^7.26.0",
     "@babel/plugin-transform-async-generator-functions": "^7.25.9",
     "@babel/plugin-transform-class-properties": "^7.25.9",
