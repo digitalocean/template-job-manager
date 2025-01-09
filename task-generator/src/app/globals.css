@@ -42,3 +42,7 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+.white-svg {
+  filter: brightness(0) invert(1);
+}
