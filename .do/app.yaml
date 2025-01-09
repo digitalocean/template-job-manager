@@ -1,8 +1,8 @@
-name: sample-react
+name: sample-job-manager
 services:
 - environment_slug: node-js
   github:
     branch: main
     deploy_on_push: true
-    repo: digitalocean/sample-react
-  name: sample-react
+    repo: digitalocean/sample-job-manager
+  name: sample-job-manager

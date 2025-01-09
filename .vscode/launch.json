@@ -6,10 +6,18 @@
     "configurations": [
         {
             "type": "node-terminal",
-            "name": "Run Script: start",
+            "name": "task-worker: dev",
             "request": "launch",
-            "command": "npm run start",
-            "cwd": "${workspaceFolder}"
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}/task-generator"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Compound",
+            "configurations": [
+                "task-worker: dev"
+            ]
         }
     ]
 }
