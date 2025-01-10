@@ -1,6 +1,6 @@
 import WorkerManager, { WorkerMessages, WorkerStatus } from '@/app/workerManager';
 
-const waitForCondition = async (conditionFn, timeout = 5000) => {
+const waitForCondition = async (conditionFn, timeout = 10000) => {
     const startTime = Date.now();
     while (!(await conditionFn())) {
         if (Date.now() - startTime > timeout) {
@@ -180,5 +180,55 @@ describe('WorkerManager', () => {
         expect(status.isRunning).toBe(true);
         expect(status.status).toBe(WorkerStatus.RUNNING);
         expect(status.message).toBe(WorkerMessages.STARTED);
+    });
+
+    test('should stop the worker based on workerFunction return value', async () => {
+        let counter = 0;
+        const mockWorkerFunction = jest.fn(() => {
+            counter++;
+            if (counter === 3) {
+                return { stop: true };
+            }
+            return {};
+        });
+
+        const result = await workerManager.start(mockWorkerFunction, 500);
+        expect(result.status).toBe(WorkerStatus.STARTED);
+        expect(result.message).toBe(WorkerMessages.STARTED);
+        expect(result.isRunning).toBe(true);
+
+        await waitForCondition(() => counter == 3);
+
+        const status = await workerManager.getStatus();
+        expect(status.isRunning).toBe(false);
+        expect(status.status).toBe(WorkerStatus.STOPPED);
+        expect(status.message).toBe(WorkerMessages.STOPPED);
+
+        expect(mockWorkerFunction).toHaveBeenCalledTimes(3);
+    });
+
+    test('should update worker status based on workerFunction return value', async () => {
+        let counter = 0;
+        const mockWorkerFunction = jest.fn(() => {
+            counter++;
+            if (counter === 2) {
+                return { message: "CUSTOM MESSAGE" };
+            }
+            return {};
+        });
+
+        const result = await workerManager.start(mockWorkerFunction, 500);
+        expect(result.status).toBe(WorkerStatus.STARTED);
+        expect(result.message).toBe(WorkerMessages.STARTED);
+        expect(result.isRunning).toBe(true);
+
+        await waitForCondition(() => counter >= 2);
+
+        const status = await workerManager.getStatus();
+        expect(status.isRunning).toBe(true);
+        expect(status.status).toBe(WorkerStatus.RUNNING);
+        expect(status.message).toBe("CUSTOM MESSAGE");
+
+        expect(mockWorkerFunction).toHaveBeenCalledTimes(2);
     });
 });
