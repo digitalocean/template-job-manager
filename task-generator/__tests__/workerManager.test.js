@@ -100,4 +100,26 @@ describe('Worker Manager', () => {
         expect(stopStatus.status).toBe(WorkerStatus.STOPPED);
         expect(stopStatus.message).toBe('Worker stopped.');
     });
+
+    it('should start the worker and stop it ', async () => {
+
+
+        const status = await getStatus(workerFunction);
+
+        expect(status.status).toBe(WorkerStatus.STOPPED);
+        expect(status.message).toBe('Worker is not running.');
+        expect(status.isRunning).toBe(false);
+
+        const statusStarted = await startWorker(workerFunction);
+
+        expect(statusStarted.status).toBe(WorkerStatus.STARTED);
+        expect(statusStarted.message).toBe('Worker started.');
+        expect(statusStarted.isRunning).toBe(true);
+
+
+        const statusStopped = await stopWorker(workerFunction);
+        expect(statusStopped.status).toBe(WorkerStatus.STOPPED);
+        expect(statusStopped.message).toBe('Worker stopped.');
+        expect(statusStopped.isRunning).toBe(false);
+    });
 });
