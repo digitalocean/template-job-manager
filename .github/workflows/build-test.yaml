@@ -10,7 +10,7 @@ on:
 jobs:
 
   lint:
-    name: Lint ${{ matrix.directory }}
+    name: ${{ matrix.directory }} Lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -39,7 +39,7 @@ jobs:
           npm run lint -- --no-cache # This is a workaround for https://github.com/eslint/eslint/issues/19322
 
   build:
-    name: Build ${{ matrix.directory }}
+    name: ${{ matrix.directory }} Build
     runs-on: ubuntu-latest
     needs: lint
     strategy:
@@ -76,7 +76,7 @@ jobs:
           npm run build
 
   test:
-    name: Test ${{ matrix.directory }}
+    name: ${{ matrix.directory }} Test
     runs-on: ubuntu-latest
     needs: build
     strategy:
