@@ -9,7 +9,13 @@
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/elanhasson/devcontainer-features/digitalocean-doctl-cli-persistence:1": {},
         "ghcr.io/devcontainers-extra/features/digitalocean-cli:1": {},
-    }
+        "ghcr.io/itsmechlark/features/postgresql:1": {
+            "version": 16
+        },
+    },
+    "containerEnv": {
+        "PGPASSWORD": "hunter2", // for local dev only
+    },
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
