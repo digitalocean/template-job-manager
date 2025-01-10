@@ -1,0 +1,21 @@
+{
+  "name": "sample-job-manager",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd task-generator && npm run build",
+    "lint": "cd task-generator && npm run lint",
+    "test": "cd task-generator && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalocean/sample-job-manager.git"
+  },
+  "author": "DigitalOcean",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/digitalocean/sample-job-manager/issues"
+  },
+  "homepage": "https://github.com/digitalocean/sample-job-manager#readme",
+  "description": ""
+}
