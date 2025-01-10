@@ -10,13 +10,21 @@
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}/task-generator"
+        },
+        {
+            "type": "node-terminal",
+            "name": "leases: dev",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}/leases"
         }
     ],
     "compounds": [
         {
-            "name": "Compound",
+            "name": "Job Manager",
             "configurations": [
-                "task-generator: dev"
+                "task-generator: dev",
+                "leases: dev",
             ]
         }
     ]
