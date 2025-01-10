@@ -1,37 +1,88 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import useSWR from 'swr';
+
+// Fetcher function to get data from the API
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function MainContent() {
+    // Use SWR to fetch the status of the worker
+    const { data, error } = useSWR('/api/generator/status', fetcher, { refreshInterval: 1000 });
+    const [status, setStatus] = useState("Loading...");
+    const [message, setMessage] = useState("");
+
+    // Update the status based on the fetched data or error
+    useEffect(() => {
+        if (error) {
+            setStatus("Error fetching status");
+            setMessage("");
+        } else if (data) {
+            setStatus(data.status);
+            setMessage(data.message);
+        }
+    }, [data, error]);
+
+    // Handle the start button click
+    const handleStart = async () => {
+        try {
+            const response = await fetch('/api/generator/start', { method: 'POST' });
+            const result = await response.json();
+            setStatus(result.status);
+            setMessage(result.message);
+        } catch (error) {
+            setStatus("Error starting worker");
+            setMessage("");
+        }
+    };
+
+    // Handle the stop button click
+    const handleStop = async () => {
+        try {
+            const response = await fetch('/api/generator/stop', { method: 'DELETE' });
+            const result = await response.json();
+            setStatus(result.status);
+            setMessage(result.message);
+        } catch (error) {
+            setStatus("Error stopping worker");
+            setMessage("");
+        }
+    };
+
+    const getStatusClass = () => {
+        switch (status) {
+            case 'STARTED':
+                return 'text-green-600';
+            case 'RUNNING':
+                return 'text-blue-600';
+            case 'STOPPED':
+                return 'text-red-600';
+            default:
+                return 'text-gray-600';
+        }
+    };
+
     return (
         <main className="flex-grow p-8">
             <div className="max-w-2xl mx-auto">
-                <h2 className="text-xl font-semibold mb-4">Welcome to Your DigitalOcean App</h2>
-                <p className="mb-4">
-                    This is a sample application to demonstrate the DigitalOcean design style.
-                </p>
-                <ol className="list-decimal list-inside mb-4">
-                    <li className="mb-2">
-                        Start by editing{" "}
-                        <code className="bg-gray-200 px-1 py-0.5 rounded">src/app/page.js</code>.
-                    </li>
-                    <li>Save your changes and see them reflected instantly.</li>
-                </ol>
-                <div className="flex gap-4">
-                    <a
-                        className="bg-blue-600 text-white rounded-full px-4 py-2 hover:bg-blue-700 transition"
-                        href="https://www.digitalocean.com/products/app-platform/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Deploy Now
-                    </a>
-                    <a
-                        className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100 transition"
-                        href="https://www.digitalocean.com/docs/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Read the Docs
-                    </a>
+                <div className="mt-8">
+                    <h2 className="text-lg font-semibold mb-2">Generator Service Status</h2>
+                    <p className={`font-bold ${getStatusClass()}`}>{status}</p>
+                    <p>{message}</p>
+                    <div className="flex gap-4 mt-4">
+                        <button
+                            className="bg-green-600 text-white rounded-full px-4 py-2 hover:bg-green-700 transition"
+                            onClick={handleStart}
+                        >
+                            Start Generator
+                        </button>
+                        <button
+                            className="bg-red-600 text-white rounded-full px-4 py-2 hover:bg-red-700 transition"
+                            onClick={handleStop}
+                        >
+                            Stop Generator
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>

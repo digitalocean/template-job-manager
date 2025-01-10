@@ -1,10 +1,11 @@
-import { stopGenerator } from '@/generatorManager';
+import { stopWorker, WorkerStatus } from '@/app/workerManager';
 
-export async function GET(req, res) {
+// Handle DELETE request to stop the worker
+export async function DELETE(req) {
     try {
-        const result = await stopGenerator();
-        return new Response(JSON.stringify(result), { status: 200 });
+        const status = await stopWorker();
+        return new Response(JSON.stringify(status), { status: status.status === WorkerStatus.STOPPED ? 200 : 409 });
     } catch (error) {
-        return new Response(JSON.stringify({ status: 'Failed to stop generator.', error }), { status: 500 });
+        return new Response(JSON.stringify({ error: 'Something went wrong.' }), { status: 500 });
     }
 }

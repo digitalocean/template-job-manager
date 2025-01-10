@@ -1,7 +1,7 @@
 const STATUS_OK = 'ok';
 const CONTENT_TYPE_JSON = 'application/json';
 
-export function GET(req, res) {
+export async function GET(req) {
     // Optionally, check app or service health (e.g., DB connection, cache, etc.)
     const healthStatus = {
         status: STATUS_OK,
