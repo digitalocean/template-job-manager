@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom'
 import WorkerManager, { WorkerMessages, WorkerStatus } from '@/app/workerManager';
 
 const waitForCondition = async (conditionFn, timeout = 10000) => {
