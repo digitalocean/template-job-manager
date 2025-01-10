@@ -61,4 +61,43 @@ describe('Worker Manager', () => {
         expect(status.status).toBe(WorkerStatus.STARTED);
         expect(status.message).toBe('Worker started.');
     });
+
+    it('should handle race conditions when starting the worker', async () => {
+        const startPromises = [startWorker(workerFunction), startWorker(workerFunction)];
+        const statuses = await Promise.all(startPromises);
+
+        expect(statuses[0].isRunning).toBe(true);
+        expect(statuses[0].status).toBe(WorkerStatus.STARTED);
+        expect(statuses[1].isRunning).toBe(true);
+        expect(statuses[1].status).toBe(WorkerStatus.STARTED);
+        expect(statuses[1].message).toBe('Worker is already running.');
+    });
+
+    it('should handle race conditions when stopping the worker', async () => {
+        await startWorker(workerFunction);
+        const stopPromises = [stopWorker(), stopWorker()];
+        const statuses = await Promise.all(stopPromises);
+
+        expect(statuses[0].isRunning).toBe(false);
+        expect(statuses[0].status).toBe(WorkerStatus.STOPPED);
+        expect(statuses[1].isRunning).toBe(false);
+        expect(statuses[1].status).toBe(WorkerStatus.STOPPED);
+        expect(statuses[1].message).toBe('Worker is not running.');
+    });
+
+    it('should handle race conditions with conflicting start/stops', async () => {
+        const startStopPromises = [startWorker(workerFunction), stopWorker()];
+        const statuses = await Promise.all(startStopPromises);
+
+        const startStatus = statuses.find(status => status.status === WorkerStatus.STARTED);
+        const stopStatus = statuses.find(status => status.status === WorkerStatus.STOPPED);
+
+        expect(startStatus.isRunning).toBe(true);
+        expect(startStatus.status).toBe(WorkerStatus.STARTED);
+        expect(startStatus.message).toBe('Worker started.');
+
+        expect(stopStatus.isRunning).toBe(false);
+        expect(stopStatus.status).toBe(WorkerStatus.STOPPED);
+        expect(stopStatus.message).toBe('Worker stopped.');
+    });
 });
