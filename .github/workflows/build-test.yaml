@@ -36,7 +36,7 @@ jobs:
       - name: Run linter
         run: |
           cd ${{ matrix.directory }}
-          npm run lint
+          npm run lint -- --no-cache # This is a workaround for https://github.com/eslint/eslint/issues/19322
 
   build:
     name: Build ${{ matrix.directory }}
