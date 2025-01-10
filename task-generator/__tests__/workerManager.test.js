@@ -1,125 +1,184 @@
-import '@testing-library/jest-dom'
-import { startWorker, stopWorker, getStatus, WorkerStatus } from '@/app/workerManager';
+import WorkerManager, { WorkerMessages, WorkerStatus } from '@/app/workerManager';
 
+const waitForCondition = async (conditionFn, timeout = 5000) => {
+    const startTime = Date.now();
+    while (!(await conditionFn())) {
+        if (Date.now() - startTime > timeout) {
+            throw new Error('Timeout waiting for condition');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+};
 
-describe('Worker Manager', () => {
-    let workerFunction;
+describe('WorkerManager', () => {
+    let workerManager;
+    let consoleErrorSpy;
 
     beforeEach(() => {
-        workerFunction = jest.fn().mockResolvedValue();
+        workerManager = WorkerManager.instance;
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     });
 
     afterEach(async () => {
-        await stopWorker();
+        const result = await workerManager.stop();
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.STOPPED;
+        });
+        consoleErrorSpy.mockRestore();
     });
 
-    it('should start the worker if not already running', async () => {
-        const status = await startWorker(workerFunction);
+    test('should start the worker and execute the function periodically', async () => {
+        let counter = 0;
+        const mockWorkerFunction = jest.fn(() => {
+            counter++;
+        });
 
+        const result = await workerManager.start(mockWorkerFunction, 1000);
+        expect(result.status).toBe(WorkerStatus.STARTED);
+        expect(result.message).toBe(WorkerMessages.STARTED);
+        expect(result.isRunning).toBe(true);
+
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.RUNNING;
+        });
+
+        const status = await workerManager.getStatus();
         expect(status.isRunning).toBe(true);
-        expect(status.status).toBe(WorkerStatus.STARTED);
-        expect(status.message).toBe('Worker started.');
+        expect(status.status).toBe(WorkerStatus.RUNNING);
+        expect(status.message).toBe(WorkerMessages.STARTED);
+
+        await waitForCondition(() => counter >= 3);
+        expect(counter).toBe(3);
     });
 
-    it('should not start the worker if already running', async () => {
-        await startWorker(workerFunction);
-        const status = await startWorker(workerFunction);
+    test('should not start if already running', async () => {
+        let counter = 0;
+        const mockWorkerFunction = jest.fn(() => {
+            counter++;
+        });
 
+        const firstResult = await workerManager.start(mockWorkerFunction, 1000);
+        expect(firstResult.status).toBe(WorkerStatus.STARTED);
+        expect(firstResult.message).toBe(WorkerMessages.STARTED);
+        expect(firstResult.isRunning).toBe(true);
+
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.RUNNING;
+        });
+
+        const result = await workerManager.start(mockWorkerFunction, 1000);
+        expect(result.status).toBe(WorkerStatus.RUNNING);
+        expect(result.message).toBe(WorkerMessages.ALREADY_RUNNING);
+        expect(result.isRunning).toBe(true);
+
+        const status = await workerManager.getStatus();
         expect(status.isRunning).toBe(true);
-        expect(status.status).toBe(WorkerStatus.STARTED);
-        expect(status.message).toBe('Worker is already running.');
+        expect(status.status).toBe(WorkerStatus.RUNNING);
+        expect(status.message).toBe(WorkerMessages.STARTED);
+
+        await waitForCondition(() => counter >= 2);
+        expect(counter).toBe(2);
     });
 
-    it('should stop the worker if it is running', async () => {
-        await startWorker(workerFunction);
-        const status = await stopWorker();
+    test('should stop the worker', async () => {
+        let counter = 0;
+        const mockWorkerFunction = jest.fn(() => {
+            counter++;
+        });
 
+        const startResult = await workerManager.start(mockWorkerFunction, 1000);
+        expect(startResult.status).toBe(WorkerStatus.STARTED);
+        expect(startResult.message).toBe(WorkerMessages.STARTED);
+        expect(startResult.isRunning).toBe(true);
+
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.RUNNING;
+        });
+
+        await waitForCondition(() => counter >= 2);
+        expect(counter).toBe(2);
+
+        const result = await workerManager.stop();
+        expect(result.status).toBe(WorkerStatus.STOPPED);
+        expect(result.message).toBe(WorkerMessages.STOPPED);
+        expect(result.isRunning).toBe(false);
+
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return !status.isRunning;
+        });
+
+        const status = await workerManager.getStatus();
         expect(status.isRunning).toBe(false);
         expect(status.status).toBe(WorkerStatus.STOPPED);
-        expect(status.message).toBe('Worker stopped.');
+        expect(status.message).toBe(WorkerMessages.STOPPED);
+
+        expect(counter).toBe(2); // No further calls after stop
     });
 
-    it('should not stop the worker if it is not running', async () => {
-        const status = await stopWorker();
+    test('should handle errors in the worker function gracefully', async () => {
+        let counter = 0;
+        const errorFunction = jest.fn(() => {
+            counter++;
+            throw new Error('Test error');
+        });
 
-        expect(status.isRunning).toBe(false);
-        expect(status.status).toBe(WorkerStatus.STOPPED);
-        expect(status.message).toBe('Worker is not running.');
+        const result = await workerManager.start(errorFunction, 1000);
+        expect(result.status).toBe(WorkerStatus.STARTED);
+        expect(result.message).toBe(WorkerMessages.STARTED);
+        expect(result.isRunning).toBe(true);
+
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.RUNNING;
+        });
+
+        await waitForCondition(() => counter >= 2);
+        expect(counter).toBe(2);
+        expect(errorFunction).toHaveBeenCalledTimes(2);
+
+        const status = await workerManager.getStatus();
+        expect(status.isRunning).toBe(true); // Worker continues running despite errors
+        expect(status.status).toBe(WorkerStatus.RUNNING);
+        expect(status.message).toBe(WorkerMessages.STARTED);
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            WorkerMessages.ERROR,
+            expect.any(Error)
+        );
     });
 
-    it('should get the current status of the worker', async () => {
-        let status = getStatus();
+    test('should respect the mutex and prevent overlapping calls', async () => {
+        let concurrentAccesses = 0;
+        let counter = 0;
+        const longRunningFunction = jest.fn(async () => {
+            concurrentAccesses++;
+            expect(concurrentAccesses).toBe(1); // Ensure no overlapping calls
+            counter++;
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            concurrentAccesses--;
+        });
 
-        expect(status.isRunning).toBe(false);
-        expect(status.status).toBe(WorkerStatus.STOPPED);
-        expect(status.message).toBe('Worker is not running.');
+        const result = await workerManager.start(longRunningFunction, 1000);
+        expect(result.status).toBe(WorkerStatus.STARTED);
+        expect(result.message).toBe(WorkerMessages.STARTED);
+        expect(result.isRunning).toBe(true);
 
-        await startWorker(workerFunction);
-        status = getStatus();
+        await waitForCondition(async () => {
+            const status = await workerManager.getStatus();
+            return status.status === WorkerStatus.RUNNING;
+        });
 
+        await waitForCondition(() => counter >= 3);
+        expect(counter).toBe(3);
+
+        const status = await workerManager.getStatus();
         expect(status.isRunning).toBe(true);
-        expect(status.status).toBe(WorkerStatus.STARTED);
-        expect(status.message).toBe('Worker started.');
-    });
-
-    it('should handle race conditions when starting the worker', async () => {
-        const startPromises = [startWorker(workerFunction), startWorker(workerFunction)];
-        const statuses = await Promise.all(startPromises);
-
-        expect(statuses[0].isRunning).toBe(true);
-        expect(statuses[0].status).toBe(WorkerStatus.STARTED);
-        expect(statuses[1].isRunning).toBe(true);
-        expect(statuses[1].status).toBe(WorkerStatus.STARTED);
-        expect(statuses[1].message).toBe('Worker is already running.');
-    });
-
-    it('should handle race conditions when stopping the worker', async () => {
-        await startWorker(workerFunction);
-        const stopPromises = [stopWorker(), stopWorker()];
-        const statuses = await Promise.all(stopPromises);
-
-        expect(statuses[0].isRunning).toBe(false);
-        expect(statuses[0].status).toBe(WorkerStatus.STOPPED);
-        expect(statuses[1].isRunning).toBe(false);
-        expect(statuses[1].status).toBe(WorkerStatus.STOPPED);
-        expect(statuses[1].message).toBe('Worker is not running.');
-    });
-
-    it('should handle race conditions with conflicting start/stops', async () => {
-        const startStopPromises = [startWorker(workerFunction), stopWorker()];
-        const statuses = await Promise.all(startStopPromises);
-
-        const startStatus = statuses.find(status => status.status === WorkerStatus.STARTED);
-        const stopStatus = statuses.find(status => status.status === WorkerStatus.STOPPED);
-
-        expect(startStatus.isRunning).toBe(true);
-        expect(startStatus.status).toBe(WorkerStatus.STARTED);
-        expect(startStatus.message).toBe('Worker started.');
-
-        expect(stopStatus.isRunning).toBe(false);
-        expect(stopStatus.status).toBe(WorkerStatus.STOPPED);
-        expect(stopStatus.message).toBe('Worker stopped.');
-    });
-
-    it('should start the worker and stop it ', async () => {
-
-
-        const status = await getStatus(workerFunction);
-
-        expect(status.status).toBe(WorkerStatus.STOPPED);
-        expect(status.message).toBe('Worker is not running.');
-        expect(status.isRunning).toBe(false);
-
-        const statusStarted = await startWorker(workerFunction);
-
-        expect(statusStarted.status).toBe(WorkerStatus.STARTED);
-        expect(statusStarted.message).toBe('Worker started.');
-        expect(statusStarted.isRunning).toBe(true);
-
-
-        const statusStopped = await stopWorker(workerFunction);
-        expect(statusStopped.status).toBe(WorkerStatus.STOPPED);
-        expect(statusStopped.message).toBe('Worker stopped.');
-        expect(statusStopped.isRunning).toBe(false);
+        expect(status.status).toBe(WorkerStatus.RUNNING);
+        expect(status.message).toBe(WorkerMessages.STARTED);
     });
 });

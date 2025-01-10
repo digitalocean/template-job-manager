@@ -11,6 +11,7 @@ export default function MainContent() {
     const { data, error } = useSWR('/api/generator/status', fetcher, { refreshInterval: 1000 });
     const [status, setStatus] = useState("Loading...");
     const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     // Update the status based on the fetched data or error
     useEffect(() => {
@@ -25,27 +26,41 @@ export default function MainContent() {
 
     // Handle the start button click
     const handleStart = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch('/api/generator/start', { method: 'POST' });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server error');
+            }
             const result = await response.json();
             setStatus(result.status);
             setMessage(result.message);
         } catch (error) {
             setStatus("Error starting worker");
-            setMessage("");
+            setMessage(error.message || "");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     // Handle the stop button click
     const handleStop = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch('/api/generator/stop', { method: 'DELETE' });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server error');
+            }
             const result = await response.json();
             setStatus(result.status);
             setMessage(result.message);
         } catch (error) {
             setStatus("Error stopping worker");
-            setMessage("");
+            setMessage(error.message || "");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -54,7 +69,7 @@ export default function MainContent() {
             case 'STARTED':
                 return 'text-green-600';
             case 'RUNNING':
-                return 'text-blue-600';
+                return 'text-green-600';
             case 'STOPPED':
                 return 'text-red-600';
             default:

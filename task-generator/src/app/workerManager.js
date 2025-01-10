@@ -1,9 +1,4 @@
-import { Mutex, withTimeout } from 'async-mutex';
-
-/**
- * Mutex to handle race conditions with a timeout.
- */
-const mutex = withTimeout(new Mutex(), 5000);
+import { Mutex } from 'async-mutex';
 
 export const WorkerStatus = {
     STARTED: 'STARTED',
@@ -11,96 +6,121 @@ export const WorkerStatus = {
     RUNNING: 'RUNNING',
 };
 
-const WORKER_ALREADY_RUNNING = 'Worker is already running.';
-const WORKER_NOT_RUNNING = 'Worker is not running.';
-const WORKER_STARTED = 'Worker started.';
-const WORKER_STOPPED = 'Worker stopped.';
-const WORKER_ERROR = 'Worker encountered an error:';
-
-export const workerStatus = {
-    isRunning: false,
-    status: WorkerStatus.STOPPED,
-    message: 'Worker is currently stopped.',
+export const WorkerMessages = {
+    ALREADY_RUNNING: 'Worker is already running.',
+    NOT_RUNNING: 'Worker is not running.',
+    STARTED: 'Worker started.',
+    STOPPED: 'Worker stopped.',
+    ERROR: 'Worker encountered an error:',
 };
 
-/**
- * Runs the worker function in a loop while the worker is running.
- * @param {Function} workerFunction - The function to run as the worker.
- */
-const runWorker = async (workerFunction) => {
-    try {
-        while (workerStatus.isRunning) {
-            await mutex.runExclusive(async () => {
-                if (!workerStatus.isRunning) {
-                    return;
-                }
-                if (typeof workerFunction !== 'function') {
-                    throw new TypeError('workerFunction must be a function');
-                }
-            });
+export default class WorkerManager {
+    #mutex;
+    #status;
+    #workerFunction;
+    #interval;
+    #intervalId;
 
-            await workerFunction();
-            await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds
-        }
-    } catch (error) {
-        console.error(WORKER_ERROR, error);
-        workerStatus.isRunning = false;
-        workerStatus.status = WorkerStatus.STOPPED;
-        workerStatus.message = `${WORKER_ERROR} ${error.message}`;
+    static instance = new WorkerManager();
+
+    constructor() {
+        this.#mutex = new Mutex();
+        this.#status = {
+            isRunning: false,
+            status: WorkerStatus.STOPPED,
+            message: WorkerMessages.NOT_RUNNING,
+        };
+        this.#workerFunction = null;
+        this.#interval = 5000;
+        this.#intervalId = null;
     }
-};
 
-/**
- * Starts the worker if it is not already running.
- * @param {Function} workerFunction - The function to run as the worker.
- * @returns {object} - The status object of the worker.
- */
-export const startWorker = async (workerFunction) => {
-    return mutex.runExclusive(async () => {
-        if (workerStatus.isRunning) {
-            console.log(WORKER_ALREADY_RUNNING);
-            workerStatus.message = WORKER_ALREADY_RUNNING;
-            return { ...workerStatus };
-        }
+    async getStatus() {
+        return this.#mutex.runExclusive(() => ({ ...this.#status }));
+    }
 
-        workerStatus.isRunning = true;
-        workerStatus.status = WorkerStatus.STARTED;
-        workerStatus.message = WORKER_STARTED;
+    async start(workerFunction, interval = 5000) {
+        return this.#mutex.runExclusive(() => {
+            if (this.#status.isRunning) {
+                console.log(WorkerMessages.ALREADY_RUNNING);
+                return { ...this.#status, message: WorkerMessages.ALREADY_RUNNING };
+            }
 
-        console.log(WORKER_STARTED);
-        runWorker(workerFunction).catch((error) => {
-            console.error(WORKER_ERROR, error);
+            if (typeof workerFunction !== 'function') {
+                throw new TypeError('workerFunction must be a function');
+            }
+
+            this.#workerFunction = workerFunction;
+            this.#interval = interval;
+
+            this.#setStatus(true, WorkerStatus.STARTED, WorkerMessages.STARTED);
+
+            console.log(WorkerMessages.STARTED);
+
+            // Schedule the worker function to run on an interval
+            this.#intervalId = setInterval(async () => {
+                try {
+                    await this.#mutex.runExclusive(async () => {
+                        if (!this.#status.isRunning) return;
+
+                        try {
+                            await this.#workerFunction();
+                        } catch (error) {
+                            console.error(WorkerMessages.ERROR, error);
+                        }
+                    });
+
+                    // Transition to RUNNING after the first execution
+                    this.#setStatus(true, WorkerStatus.RUNNING, WorkerMessages.STARTED);
+                } catch (error) {
+                    console.error(WorkerMessages.ERROR, error);
+                }
+            }, this.#interval);
+
+            return { ...this.#status };
         });
+    }
 
-        return { ...workerStatus };
-    });
-};
+    async stop() {
+        return this.#mutex.runExclusive(() => {
+            if (!this.#status.isRunning) {
+                console.log(WorkerMessages.NOT_RUNNING);
+                return { ...this.#status, message: WorkerMessages.NOT_RUNNING };
+            }
 
-/**
- * Stops the worker if it is running.
- * @returns {object} - The status object of the worker.
- */
-export const stopWorker = async () => {
-    return mutex.runExclusive(async () => {
-        if (!workerStatus.isRunning) {
-            console.log(WORKER_NOT_RUNNING);
-            workerStatus.message = WORKER_NOT_RUNNING;
-            return { ...workerStatus };
+            if (this.#intervalId) {
+                clearInterval(this.#intervalId);
+                this.#intervalId = null;
+            }
+
+            this.#setStatus(false, WorkerStatus.STOPPED, WorkerMessages.STOPPED);
+            console.log(WorkerMessages.STOPPED);
+
+            return { ...this.#status };
+        });
+    }
+
+    static async startWorker(workerFunction, interval) {
+        return WorkerManager.instance.start(workerFunction, interval);
+    }
+
+    static async stopWorker() {
+        return WorkerManager.instance.stop();
+    }
+
+    static async getStatus() {
+        return WorkerManager.instance.getStatus();
+    }
+
+    #setStatus(isRunning, status, message) {
+        if (!Object.values(WorkerStatus).includes(status)) {
+            throw new Error(`Invalid status: ${status}`);
         }
 
-        workerStatus.isRunning = false;
-        workerStatus.status = WorkerStatus.STOPPED;
-        workerStatus.message = WORKER_STOPPED;
-
-        console.log(WORKER_STOPPED);
-        return { ...workerStatus };
-    });
-};
-
-/**
- * Gets the current status of the worker.
- * @returns {object} - The status object of the worker.
- */
-export const getStatus = () => {
-    return { ...workerStatus };
-};
+        this.#status = {
+            isRunning,
+            status,
+            message,
+        };
+    }
+}
