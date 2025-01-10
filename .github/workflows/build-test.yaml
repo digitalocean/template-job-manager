@@ -78,7 +78,7 @@ jobs:
   test:
     name: Test ${{ matrix.directory }}
     runs-on: ubuntu-latest
-    needs: lint
+    needs: build
     strategy:
       matrix:
         directory: [ "task-generator" ] # Add more directories here
