@@ -8,7 +8,7 @@ export async function GET(req) {
         timestamp: new Date().toISOString(),
     };
 
-    return NextResponse.json(JSON.stringify(healthStatus), {
+    return NextResponse.json(healthStatus, {
         status: 200,
         headers: { 'Content-Type': CONTENT_TYPE_JSON },
     });
