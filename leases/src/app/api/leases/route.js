@@ -15,7 +15,6 @@ export async function GET(req) {
 
 // Handle POST request to create a new lease
 export async function POST(req) {
-    const client = await pool.connect();
     try {
         const { resource, holder } = await req.json();
         const query = `
