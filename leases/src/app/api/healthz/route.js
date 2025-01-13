@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+
 const STATUS_OK = 'ok';
 const CONTENT_TYPE_JSON = 'application/json';
 
@@ -8,7 +10,7 @@ export async function GET(req) {
         timestamp: new Date().toISOString(),
     };
 
-    return new Response(JSON.stringify(healthStatus), {
+    return NextResponse.json(healthStatus, {
         status: 200,
         headers: { 'Content-Type': CONTENT_TYPE_JSON },
     });
