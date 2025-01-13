@@ -12,8 +12,7 @@ export default function MainComponent() {
     const [view, setView] = useState('list'); // 'list' or 'lease'
     const [lookupError, setLookupError] = useState('');
 
-    const leasesUrl = filter === 'expired' ? '/api/leases/expired' : filter === 'active' ? '/api/leases/active' : filter === 'released' ? '/api/leases/released' : '/api/leases';
-    const { data: leasesData, error: leasesError, isLoading: isLoadingLeases } = useSWR(leasesUrl, fetcher, { refreshInterval: 1000 });
+    const { data: leasesData, error: leasesError, isLoading: isLoadingLeases } = useSWR((filter === 'all' ? '/api/leases' : `/api/leases/${filter}`), fetcher, { refreshInterval: 1000 });
     const { data: leaseData, error: leaseError, isLoading: isLoadingLease } = useSWR(leaseId ? `/api/leases/${leaseId}` : null, fetcher, { refreshInterval: 1000 });
 
     const leases = leasesData ? leasesData.leases : [];
@@ -58,6 +57,7 @@ export default function MainComponent() {
                             <option value="expired">Expired</option>
                             <option value="active">Active</option>
                             <option value="released">Released</option>
+                            <option value="renewed">Renewed</option>
                         </select>
                     </label>
                     <button onClick={handleFilterApply} className="bg-blue-600 text-white rounded-full px-4 py-2 hover:bg-blue-700 transition">
@@ -89,9 +89,11 @@ export default function MainComponent() {
                         <h2 className="text-xl font-semibold mb-4">Leases</h2>
                         {isLoadingLeases ? (
                             <div className="spinner">Loading...</div>
+                        ) : leasesError ? (
+                            <p className="text-red-600 mt-4">Error fetching leases: {leasesError.message}</p>
                         ) : (
                             <ul className="list-none list-inside">
-                                {leases.length > 0 ? (
+                                {leases?.length > 0 ? (
                                     leases.map(lease => (
                                         <li key={lease.id} className="mb-2 cursor-pointer" onClick={() => { setLeaseId(lease.id); setView('lease'); }}>
                                             <strong>{lease.resource}</strong> - {lease.holder}

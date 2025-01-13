@@ -1,5 +1,6 @@
-
+import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client';
+import { stringifyError } from 'next/dist/shared/lib/utils';
 
 const prisma = new PrismaClient();
 
@@ -13,9 +14,9 @@ export async function GET(req) {
                 }
             }
         });
-        return new Response(JSON.stringify({ leases }), { status: 200 });
+        return NextResponse.json({ leases }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching released leases:', error);
-        return new Response(JSON.stringify({ error: 'Failed to fetch released leases.' }), { status: 500 });
+        console.error('Error fetching released leases:',  stringifyError(error));
+        return NextResponse.json({ error: 'Failed to fetch released leases.' }, { status: 500 });
     }
 }

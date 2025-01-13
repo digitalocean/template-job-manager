@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
+import { stringifyError } from 'next/dist/shared/lib/utils';
 
 const prisma = new PrismaClient();
 
@@ -13,13 +15,13 @@ export async function GET(req, { params }) {
         });
 
         if (!lease) {
-            return new Response(JSON.stringify({ error: 'Lease not found.' }), { status: 404 });
+            return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
         }
 
-        return new Response(JSON.stringify({ lease }), { status: 200 });
+        return NextResponse.json({ lease }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching lease:', error);
-        return new Response(JSON.stringify({ error: 'Failed to fetch lease.' }), { status: 500 });
+        console.error('Error fetching lease:', stringifyError(error));
+        return NextResponse.json({ error: 'Failed to fetch lease.' }, { status: 500 });
     }
 }
 
@@ -29,21 +31,22 @@ export async function DELETE(req, { params }) {
     try {
         const id = parseInt((await params).id, 10);
         const query = `
-            DELETE FROM leases
-            WHERE id = $1
+            UPDATE leases
+             SET released_at = NOW(), expires_at = NOW()
+            WHERE id = $1 AND expires_at >= NOW()
             RETURNING *;
         `;
         const values = [id];
         const result = await client.query(query, values);
 
         if (result.rows.length === 0) {
-            return new Response(JSON.stringify({ error: 'Lease not found.' }), { status: 404 });
+            return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
         }
 
-        return new Response(JSON.stringify({ message: 'Lease released successfully.' }), { status: 200 });
+        return NextResponse.json({ message: 'Lease released successfully.' }, { status: 200 });
     } catch (error) {
-        console.error('Error releasing lease:', error);
-        return new Response(JSON.stringify({ error: 'Failed to release lease.' }), { status: 500 });
+        console.error('Error releasing lease:', stringifyError(error));
+        return NextResponse.json({ error: 'Failed to release lease.' }, { status: 500 });
     } finally {
         client.release();
     }

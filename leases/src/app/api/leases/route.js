@@ -1,4 +1,6 @@
+import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client';
+import { stringifyError } from 'next/dist/shared/lib/utils';
 
 const prisma = new PrismaClient();
 
@@ -6,10 +8,10 @@ const prisma = new PrismaClient();
 export async function GET(req) {
     try {
         const leases = await prisma.lease.findMany();
-        return new Response(JSON.stringify({ leases }), { status: 200 });
+        return NextResponse.json({ leases }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching leases:', error);
-        return new Response(JSON.stringify({ error: 'Failed to fetch leases.' }), { status: 500 });
+        console.error('Error fetching leases:', stringifyError(error));
+        return NextResponse.json({ error: 'Failed to fetch leases.' }, { status: 500 });
     }
 }
 
@@ -29,13 +31,13 @@ export async function POST(req) {
         const result = await client.query(query, values);
 
         if (result.rows.length === 0) {
-            return new Response(JSON.stringify({ error: 'Resource already has an active lease.' }), { status: 409 });
+            return NextResponse.json({ error: 'Resource already has an active lease.' }, { status: 409 });
         }
 
-        return new Response(JSON.stringify(result.rows[0]), { status: 201 });
+        return NextResponse.json(result.rows[0], { status: 201 });
     } catch (error) {
-        console.error('Error creating lease:', error);
-        return new Response(JSON.stringify({ error: 'Failed to create lease.' }), { status: 500 });
+        console.error('Error creating lease:', stringifyError(error));
+        return NextResponse.json({ error: 'Failed to create lease.' }, { status: 500 });
     } finally {
         client.release();
     }
