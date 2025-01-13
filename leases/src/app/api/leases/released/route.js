@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/app/lib/prisma-client';
 import { stringifyError } from 'next/dist/shared/lib/utils';
-
-const prisma = new PrismaClient();
-
+ 
 // Handle GET request to get the list of released leases
 export async function GET(req) {
     try {

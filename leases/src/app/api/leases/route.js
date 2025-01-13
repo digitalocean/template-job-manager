@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client';
 import { stringifyError } from 'next/dist/shared/lib/utils';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/app/lib/prisma-client';
 
 // Handle GET request to get the status of the worker and list of leases
 export async function GET(req) {
@@ -38,7 +36,5 @@ export async function POST(req) {
     } catch (error) {
         console.error('Error creating lease:', stringifyError(error));
         return NextResponse.json({ error: 'Failed to create lease.' }, { status: 500 });
-    } finally {
-        client.release();
     }
 }

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/app/lib/prisma-client';
 import { stringifyError } from 'next/dist/shared/lib/utils';
 
-const prisma = new PrismaClient();
 
 // Handle PUT request to renew a lease by ID
 export async function PUT(req, { params }) {
@@ -15,7 +14,7 @@ export async function PUT(req, { params }) {
             RETURNING *;
         `;
         const values = [id];
-        const result = await client.query(query, values);
+        const result = await prisma.query(query, values);
 
         if (result.rows.length === 0) {
             return NextResponse.json({ error: 'Lease not found or already expired.' }, { status: 404 });
@@ -25,7 +24,5 @@ export async function PUT(req, { params }) {
     } catch (error) {
         console.error('Error fetching expired leases:', stringifyError(error));
         return NextResponse.json({ error: 'Failed to renew lease.' }, { status: 500 });
-    } finally {
-        client.release();
     }
 }

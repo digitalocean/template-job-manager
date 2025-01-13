@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { stringifyError } from 'next/dist/shared/lib/utils';
+import { prisma } from '@/app/lib/prisma-client';
 
-const prisma = new PrismaClient();
 
 // Handle GET request to get a lease by ID
 export async function GET(req, { params }) {
@@ -47,7 +46,5 @@ export async function DELETE(req, { params }) {
     } catch (error) {
         console.error('Error releasing lease:', stringifyError(error));
         return NextResponse.json({ error: 'Failed to release lease.' }, { status: 500 });
-    } finally {
-        client.release();
     }
 }
