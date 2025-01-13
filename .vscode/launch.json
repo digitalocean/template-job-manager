@@ -6,7 +6,7 @@
     "configurations": [
         {
             "type": "node-terminal",
-            "name": "task-worker: dev",
+            "name": "task-generator: dev",
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}/task-generator"
@@ -16,7 +16,7 @@
         {
             "name": "Compound",
             "configurations": [
-                "task-worker: dev"
+                "task-generator: dev"
             ]
         }
     ]

@@ -80,6 +80,9 @@ export default function Home() {
   return (
     <main className="flex-grow p-8">
       <div className="max-w-2xl mx-auto">
+        <div className="px-4 py-4 border border-gray-300">
+          <p>This service is responsible for generating fake tasks for the worker processes using a random sleep interval to simulate work.</p>
+        </div>
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-2">Generator Service Status</h2>
           <p className={`font-bold ${getStatusClass()}`}>{status}</p>

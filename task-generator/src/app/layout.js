@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Lease Service",
-  description: "A centralized Lease Service.",
+  title: "Task Generator Service",
+  description: "Generates fake tasks for the demo.",
 };
 
 export default function RootLayout({ children }) {
