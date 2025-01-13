@@ -26,7 +26,6 @@ export async function GET(req, { params }) {
 
 // Handle DELETE request to release (delete) a lease by ID 
 export async function DELETE(req, { params }) {
-    const client = await pool.connect();
     try {
         const id = parseInt((await params).id, 10);
         const query = `
