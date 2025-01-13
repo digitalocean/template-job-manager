@@ -1,5 +1,6 @@
 import WorkerManager from '@/app/workerManager';
 import { stringifyError } from 'next/dist/shared/lib/utils';
+import { NextResponse } from 'next/server'
 
 // Handle GET request to get the status of the worker
 export async function GET(req) {

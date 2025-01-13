@@ -8,7 +8,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Home() {
   // Use SWR to fetch the status of the worker
-  const { data, error } = useSWR('/api/generator/status', fetcher, { refreshInterval: 1000 });
+  const { data, error } = useSWR('/api/generator/status', fetcher, { refreshInterval: 500 });
   const [status, setStatus] = useState("Loading...");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function Home() {
       const response = await fetch('/api/generator/start', { method: 'POST' });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Server error');
+        throw new Error(errorData.message || 'Server error');
       }
       const result = await response.json();
       setStatus(result.status);
@@ -51,7 +51,7 @@ export default function Home() {
       const response = await fetch('/api/generator/stop', { method: 'DELETE' });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Server error');
+        throw new Error(errorData.message || 'Server error');
       }
       const result = await response.json();
       setStatus(result.status);

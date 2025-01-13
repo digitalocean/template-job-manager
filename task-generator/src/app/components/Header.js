@@ -14,7 +14,7 @@ export default function Header() {
                     height={32}
                     className="white-svg"
                 />
-                {metadata.title}
+                <span className="pl-4">{metadata.title}</span>
             </h1>
         </header>
     );

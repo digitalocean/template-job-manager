@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+
 const STATUS_OK = 'ok';
 const CONTENT_TYPE_JSON = 'application/json';
 

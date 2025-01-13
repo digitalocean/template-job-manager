@@ -1,5 +1,6 @@
 import WorkerManager, { WorkerStatus } from '@/app/workerManager';
 import { stringifyError } from 'next/dist/shared/lib/utils';
+import { NextResponse } from 'next/server'
 
 // Handle DELETE request to stop the worker
 export async function DELETE(req) {
