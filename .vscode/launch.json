@@ -6,17 +6,25 @@
     "configurations": [
         {
             "type": "node-terminal",
-            "name": "task-worker: dev",
+            "name": "task-service: dev",
             "request": "launch",
             "command": "npm run dev",
-            "cwd": "${workspaceFolder}/task-generator"
+            "cwd": "${workspaceFolder}/task-service"
+        },
+        {
+            "type": "node-terminal",
+            "name": "leases: dev",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}/leases"
         }
     ],
     "compounds": [
         {
-            "name": "Compound",
+            "name": "Job Manager",
             "configurations": [
-                "task-worker: dev"
+                "task-service: dev",
+                "leases: dev",
             ]
         }
     ]
