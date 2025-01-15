@@ -16,17 +16,17 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "github.vscode-github-actions"
-            ]
+                "redhat.vscode-yaml"
+            ],
+            "settings": {
+                "[github-actions-workflow]": {
+                    "editor.defaultFormatter": "redhat.vscode-yaml"
+                }
+            }
         }
     },
     "containerEnv": {
         "PGPASSWORD": "hunter2", // for local dev only
-    },
-    "customizations": {
-        "vscode": {
-            "extensions": []
-        }
     },
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
