@@ -48,7 +48,7 @@ jobs:
         run: |
           git symbolic-ref refs/remotes/origin/HEAD origin/${{github.base_ref}}
           all_changed_files=$(git --no-pager diff --name-only origin/${{github.head_ref}} origin/${{github.base_ref}})
-          echo "all_changed_files=$all_changed_files" >> $GITHUB_OUTPUT
+          echo "all_changed_files='$all_changed_files'" >> $GITHUB_OUTPUT
 
       - name: Get combined boolean output
         id: get_output
