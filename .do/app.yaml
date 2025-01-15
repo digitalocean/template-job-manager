@@ -1,3 +1,4 @@
+bad one
 alerts:
 - rule: DEPLOYMENT_FAILED
 - rule: DOMAIN_FAILED
