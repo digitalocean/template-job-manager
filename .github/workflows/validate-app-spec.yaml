@@ -63,7 +63,7 @@ jobs:
       - name: Extract Components
         id: extract-components
         run: |
-          components="$(cat "${{ matrix.file }}" | yq --output-format=json '[ .services[].name, .workers[].name, .jobs[].name, .static_sites[].name ]'' )""
+          components="$(cat "${{ matrix.file }}" | yq --output-format=json '[ .services[].name, .workers[].name, .jobs[].name, .static_sites[].name ]' )""
           components_json=$(echo $components | jq -R . | jq -s .)
           echo "Collected components: $components_json"
           echo "components_to_build="$components_json"" >> $GITHUB_OUTPUT
