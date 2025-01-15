@@ -29,7 +29,7 @@ jobs:
           done
           files_json=$(printf '%s\n' "${files_array[@]}" | jq -R . | jq -s .)
           echo "Collected files: $files_json"
-          echo "::set-output name=added_modified::$files_json"
+          echo "added_modified=$files_json" >> $GITHUB_OUTPUT
     outputs:
       added_modified: ${{ steps.filtered_files.outputs.added_modified }}
 
