@@ -1,3 +1,4 @@
+# This deploys the entire solution.
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
@@ -31,7 +32,7 @@ jobs:
         scope: RUN_TIME
         value: ${db-task-service.DATABASE_URL}
     github:
-      branch: task-service
+      branch: main
       deploy_on_push: true
       repo: digitalocean/sample-job-manager
     instance_count: 2
@@ -46,7 +47,7 @@ jobs:
         scope: RUN_TIME
         value: ${db-leases.DATABASE_URL}
     github:
-      branch: task-service
+      branch: main
       deploy_on_push: true
       repo: digitalocean/sample-job-manager
     instance_count: 2
@@ -70,7 +71,7 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: http://leases:8080/api/leases
     github:
-      branch: task-service
+      branch: main
       deploy_on_push: true
       repo: digitalocean/sample-job-manager
     http_port: 8080
@@ -88,7 +89,7 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
     github:
-      branch: task-service
+      branch: main
       deploy_on_push: true
       repo: digitalocean/sample-job-manager
     http_port: 8080

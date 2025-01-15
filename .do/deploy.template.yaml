@@ -1,8 +1,10 @@
+# This is used to mark this repo as containing a sample.
+
 spec:
   name: sample-job-manager
   services:
-  - environment_slug: node-js
-    git:
-      branch: task-service
-      repo_clone_url: https://github.com/digitalocean/sample-job-manager.git
-    name: sample-job-manager
+    - environment_slug: node-js
+      git:
+        branch: task-service
+        repo_clone_url: https://github.com/digitalocean/sample-job-manager.git
+      name: sample-job-manager
