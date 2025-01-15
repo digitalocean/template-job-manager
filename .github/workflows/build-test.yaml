@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-
   lint:
     name: ${{ matrix.directory }} Lint
     runs-on: ubuntu-latest

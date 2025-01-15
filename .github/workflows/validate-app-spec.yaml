@@ -10,9 +10,16 @@ on:
 jobs:
   find-changes:
     name: Identify Changed App Specs
-    uses: ./.github/workflows/get-changed-files.yaml
-    with:
-      folder_path: .do/**/*.yml .do/**/*.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch all history of all branches
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: 'json'
 
   propose-app-spec:
     needs: find-changes
@@ -20,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: ${{ needs.find-changes.outputs.all_changed_files }}
+        file: ${{ fromJson(needs.find-changes.outputs.files.added_modified) }}
     environment: propose-app-spec
     steps:
       - name: Install doctl
