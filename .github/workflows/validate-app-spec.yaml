@@ -61,4 +61,4 @@ jobs:
       - name: Propose App Spec (new app)
         run: doctl apps propose --spec "${{ matrix.file }}"
       - name: Perform `doctl apps dev build`
-        run: doctl apps dev build --no-cache
+        run: doctl apps dev build --no-cache --spec "${{ matrix.file }}"
