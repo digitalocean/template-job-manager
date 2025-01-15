@@ -16,7 +16,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-ossdata.vscode-postgresql"
+                "github.vscode-github-actions"
             ]
         }
     },

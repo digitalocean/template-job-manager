@@ -1,0 +1,52 @@
+name: Validate App Specs
+
+on:
+  pull_request:
+    paths:
+      - '.do/*.yaml'
+      - '.do/*.yml'
+    paths-ignore:
+      - '.do/*.template.yaml'
+      - '.do/*.template.yml'
+  push:
+    paths:
+      - '.do/*.yaml'
+      - '.do/*.yml'
+    paths-ignore:
+      - '.do/*.template.yaml'
+      - '.do/*.template.yml'
+
+jobs:
+  find-changes:
+    name: Identify Changed App Specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set changed files
+        id: changed-files
+        run: |
+          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '.do/.*\.ya?ml$' | grep -v '.template.ya?ml$' | paste -sd ',' -)"
+      - name: Process changed YAML files
+        run: |
+          echo "Changed files: ${{ steps.changed-files.outputs.files }}"
+
+  propose-app-spec:
+    needs: find-changes
+    name: Validate App Spec -  ${{ matrix.file }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.find-changes.outputs.files) }}
+    environment: elan-apps-prod-demo
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Propose App Spec
+        run: doctl apps propose --spec "${{ matrix.file }}"
+      - name: Another Command
+        run: echo "Running another command for ${{ matrix.file }}"
