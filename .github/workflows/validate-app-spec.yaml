@@ -5,6 +5,9 @@ on:
     paths:
       - '.do/*.yaml'
       - '.do/*.yml'
+
+      workflow_dispatch:
+
 jobs:
   find-changes:
     name: Identify Changed App Specs
