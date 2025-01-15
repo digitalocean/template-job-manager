@@ -12,12 +12,11 @@ jobs:
     name: Identify Changed App Specs
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: "Get Changed Files: do/*.yaml"
+
+      - name: "Get Changed Files: do/*.y?ml"
         uses: ./.github/workflows/get-changed-files.yaml
         with:
-          folder_path: ./**/*.yml ./**/*.yaml
+          folder_path: .do/**/*.yml .do/**/*.yaml
 
   propose-app-spec:
     needs: find-changes
