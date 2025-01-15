@@ -5,17 +5,6 @@ on:
     paths:
       - '.do/*.yaml'
       - '.do/*.yml'
-    paths-ignore:
-      - '.do/*.template.yaml'
-      - '.do/*.template.yml'
-  push:
-    paths:
-      - '.do/*.yaml'
-      - '.do/*.yml'
-    paths-ignore:
-      - '.do/*.template.yaml'
-      - '.do/*.template.yml'
-
 jobs:
   find-changes:
     name: Identify Changed App Specs
@@ -38,7 +27,7 @@ jobs:
     strategy:
       matrix:
         file: ${{ fromJson(needs.find-changes.outputs.files) }}
-    environment: elan-apps-prod-demo
+    environment: propose-app-spec
     steps:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
