@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: ${{ fromJson(needs.find-changes.outputs.files.added_modified) }}
+        file: ${{ fromJson(needs.find-changes.outputs.files.outputs.added_modified) }}
     environment: propose-app-spec
     steps:
       - name: Install doctl
