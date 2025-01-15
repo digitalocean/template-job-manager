@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history of all branches
       - name: "Get Changed Files: do/*.y?ml"
-        uses: ./.github/workflows/get-changed-files.yaml
+        uses: ./get-changed-files.yaml
         with:
           folder_path: .do/**/*.yml .do/**/*.yaml
 
