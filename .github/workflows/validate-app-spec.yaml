@@ -87,4 +87,3 @@ jobs:
         uses: actions/checkout@v2
       - name: Perform `doctl apps dev build`
         run: doctl apps dev build --no-cache --spec "${{ matrix.component }}"
-
