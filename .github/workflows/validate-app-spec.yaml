@@ -23,7 +23,7 @@ jobs:
         run: |
           files_array=()
           for changed_file in ${{ steps.files.outputs.added_modified }}; do
-            if [[ "$changed_file" == ./.do/*.yaml || "$changed_file" == ./.do/*.yml ]] && [[ "$changed_file" != ./.do/*.template.yaml ]]; then
+            if [[ "$changed_file" == .do/*.yaml || "$changed_file" == .do/*.yml ]] && [[ "$changed_file" != .do/*.template.yaml ]]; then
               files_array+=("$changed_file")
             fi
           done
