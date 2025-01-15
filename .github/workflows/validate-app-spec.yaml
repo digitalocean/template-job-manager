@@ -21,14 +21,24 @@ jobs:
         id: filtered_files
         run: |
           files_array=()
-          for changed_file in ${{ steps.files.outputs.added_modified }}; do
-            if [[ "$changed_file" == .do/*.yaml || "$changed_file" == .do/*.yml ]] && [[ "$changed_file" != .do/*.template.yaml ]]; then
-              files_array+=("$changed_file")
+          if [ -z "${{ steps.files.outputs.added_modified }}" ]; then
+            files_json="[]"
+          else
+            for changed_file in ${{ steps.files.outputs.added_modified }}; do
+              if [[ "$changed_file" == .do/*.yaml || "$changed_file" == .do/*.yml ]] && [[ "$changed_file" != .do/*.template.yaml ]]; then
+                files_array+=("$changed_file")
+              fi
+            done
+
+            if [ ${#files_array[@]} -eq 0 ]; then
+              files_json="[]"
+            else
+              files_json=$(printf '%s\n' "${files_array[@]}" | jq -R . | jq -s .)
             fi
-          done
-          files_json=$(printf '%s\n' "${files_array[@]}" | jq -R . | jq -s .)
+          fi
+          
           echo "Collected files: $files_json"
-          echo "added_modified="$files_json"" >> $GITHUB_OUTPUT
+          echo "added_modified=$files_json" >> $GITHUB_OUTPUT
     outputs:
       added_modified: ${{ steps.filtered_files.outputs.added_modified }}
 
