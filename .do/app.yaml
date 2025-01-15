@@ -1,99 +1,99 @@
 alerts:
-- rule: DEPLOYMENT_FAILED
-- rule: DOMAIN_FAILED
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
 databases:
-- engine: PG
-  name: db-task-service
-- engine: PG
-  name: db-leases
+  - engine: PG
+    name: db-task-service
+  - engine: PG
+    name: db-leases
 envs:
-- key: NODE_ENV
-  scope: RUN_AND_BUILD_TIME
-  value: production
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
 features:
-- buildpack-stack=ubuntu-22
+  - buildpack-stack=ubuntu-22
 ingress:
   rules:
-  - component:
-      name: task-service
-    match:
-      path:
-        prefix: /
-  - component:
-      name: leases
-    match:
-      path:
-        prefix: /leases
+    - component:
+        name: task-service
+      match:
+        path:
+          prefix: /
+    - component:
+        name: leases
+      match:
+        path:
+          prefix: /leases
 jobs:
-- environment_slug: node-js
-  envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    value: ${db-task-service.DATABASE_URL}
-  github:
-    branch: task-service
-    deploy_on_push: true
-    repo: digitalocean/sample-job-manager
-  instance_count: 2
-  instance_size_slug: apps-s-1vcpu-1gb
-  kind: PRE_DEPLOY
-  name: migrations-task-service
-  run_command: npx prisma migrate deploy
-  source_dir: task-service
-- environment_slug: node-js
-  envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    value: ${db-leases.DATABASE_URL}
-  github:
-    branch: task-service
-    deploy_on_push: true
-    repo: digitalocean/sample-job-manager
-  instance_count: 2
-  instance_size_slug: apps-s-1vcpu-1gb
-  kind: PRE_DEPLOY
-  name: migrations-leases
-  run_command: npx prisma migrate deploy
-  source_dir: leases
+  - environment_slug: node-js
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-task-service.DATABASE_URL}
+    github:
+      branch: task-service
+      deploy_on_push: true
+      repo: digitalocean/sample-job-manager
+    instance_count: 2
+    instance_size_slug: apps-s-1vcpu-1gb
+    kind: PRE_DEPLOY
+    name: migrations-task-service
+    run_command: npx prisma migrate deploy
+    source_dir: task-service
+  - environment_slug: node-js
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-leases.DATABASE_URL}
+    github:
+      branch: task-service
+      deploy_on_push: true
+      repo: digitalocean/sample-job-manager
+    instance_count: 2
+    instance_size_slug: apps-s-1vcpu-1gb
+    kind: PRE_DEPLOY
+    name: migrations-leases
+    run_command: npx prisma migrate deploy
+    source_dir: leases
 name: demo-job-manager
 region: nyc
 services:
-- environment_slug: node-js
-  envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    value: ${db-task-service.DATABASE_URL}
-  - key: NEXT_PUBLIC_URL
-    scope: RUN_AND_BUILD_TIME
-    value: https://demo-job-manager-mhyct.ondigitalocean.app
-  - key: SERVICE_LEASES_URL
-    scope: RUN_AND_BUILD_TIME
-    value: http://leases:8080/api/leases
-  github:
-    branch: task-service
-    deploy_on_push: true
-    repo: digitalocean/sample-job-manager
-  http_port: 8080
-  instance_count: 2
-  instance_size_slug: apps-s-1vcpu-1gb
-  name: task-service
-  run_command: npm start
-  source_dir: task-service
-- environment_slug: node-js
-  envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    value: ${db-leases.DATABASE_URL}
-  - key: NEXT_PUBLIC_URL
-    scope: RUN_AND_BUILD_TIME
-    value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
-  github:
-    branch: task-service
-    deploy_on_push: true
-    repo: digitalocean/sample-job-manager
-  http_port: 8080
-  instance_count: 2
-  instance_size_slug: apps-s-1vcpu-1gb
-  name: leases
-  run_command: npm start
-  source_dir: leases
+  - environment_slug: node-js
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-task-service.DATABASE_URL}
+      - key: NEXT_PUBLIC_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://demo-job-manager-mhyct.ondigitalocean.app
+      - key: SERVICE_LEASES_URL
+        scope: RUN_AND_BUILD_TIME
+        value: http://leases:8080/api/leases
+    github:
+      branch: task-service
+      deploy_on_push: true
+      repo: digitalocean/sample-job-manager
+    http_port: 8080
+    instance_count: 2
+    instance_size_slug: apps-s-1vcpu-1gb
+    name: task-service
+    run_command: npm start
+    source_dir: task-service
+  - environment_slug: node-js
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db-leases.DATABASE_URL}
+      - key: NEXT_PUBLIC_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
+    github:
+      branch: task-service
+      deploy_on_push: true
+      repo: digitalocean/sample-job-manager
+    http_port: 8080
+    instance_count: 2
+    instance_size_slug: apps-s-1vcpu-1gb
+    name: leases
+    run_command: npm start
+    source_dir: leases
