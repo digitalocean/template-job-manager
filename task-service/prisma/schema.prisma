@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id              Int       @id @default(autoincrement())
+  taskData        Json      @map("task_data")
+  scheduledAt     DateTime  @default(now()) @map("scheduled_at") // Default to the current timestamp
+  processor       String?   @map("processor")
+  lastHeartBeatAt DateTime? @map("last_heartbeat_at")
+  mustHeartBeatBefore DateTime? @map("must_heartbeat_before")
+  startedAt       DateTime? @map("started_at")
+  processedAt     DateTime? @map("processed_at")
+  taskOutput      Json?   @map("task_output")
+  
+  @@map("tasks")
+}

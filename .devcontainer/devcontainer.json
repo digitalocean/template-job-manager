@@ -13,8 +13,20 @@
             "version": 16
         },
     },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-ossdata.vscode-postgresql"
+            ]
+        }
+    },
     "containerEnv": {
         "PGPASSWORD": "hunter2", // for local dev only
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": []
+        }
     },
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
