@@ -17,7 +17,11 @@ jobs:
       - name: Set changed files
         id: changed-files
         run: |
-          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '.do/.*\.ya?ml$' | grep -v '.template.ya?ml$' | paste -sd ',' -)"
+          if [ -z "${{ github.event.before }}" ]; then
+            echo "files=$(git diff --name-only HEAD^ HEAD | grep '.do/.*\.ya?ml$' | grep -v '.template.ya?ml$' | paste -sd ',' -)" >> $GITHUB_OUTPUT
+          else
+            echo "files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '.do/.*\.ya?ml$' | grep -v '.template.ya?ml$' | paste -sd ',' -)" >> $GITHUB_OUTPUT
+          fi
       - name: Process changed YAML files
         run: |
           echo "Changed files: ${{ steps.changed-files.outputs.files }}"
