@@ -66,9 +66,8 @@ jobs:
           components="$(cat "${{ matrix.file }}" | yq --output-format=json '[ .services[].name, .workers[].name, .jobs[].name, .static_sites[].name ]' )"
 
           echo "Collected components: $components"
-          echo "components_to_build="$components"" >> $GITHUB_OUTPUT
+          echo "components_to_build="{name: "${{ matrix.file }}", components: $components"" >> $GITHUB_OUTPUT
     outputs:
-      source_spec: ${{ matrix.file }}
       components_to_build: ${{ steps.extract-components.outputs.components_to_build }}
 
   test-app-build:
@@ -77,8 +76,7 @@ jobs:
     needs: propose-app-spec
     strategy:
       matrix:
-        file: ${{ needs.propose-app-spec.outputs.source_spec }}
-        component: ${{ fromJSON(needs.propose-app-spec.outputs.components_to_build) }}
+        component: ${{ fromJSON(needs.propose-app-spec.outputs.components_to_build).components }}
     environment: propose-app-spec
     steps:
       - name: Install doctl
@@ -88,4 +86,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Perform `doctl apps dev build`
-        run: doctl apps dev build --no-cache --spec "${{ matrix.file }}" "${{ matrix.component }}"
+        run: doctl apps dev build --no-cache --spec "${{ fromJSON(needs.propose-app-spec.outputs.components_to_build).name }}" "${{ matrix.component }}"
