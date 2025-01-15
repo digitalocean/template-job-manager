@@ -5,8 +5,7 @@ on:
     paths:
       - '.do/*.yaml'
       - '.do/*.yml'
-
-      workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   find-changes:
