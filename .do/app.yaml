@@ -1,3 +1,4 @@
+# This deploys the entire solution.
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED

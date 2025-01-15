@@ -16,6 +16,7 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history of all branches
       - id: files
+        name: Get Changed Files
         uses: jitterbit/get-changed-files@v1
       - name: Filter Changed Files
         id: filtered_files
@@ -36,7 +37,7 @@ jobs:
               files_json=$(printf '%s\n' "${files_array[@]}" | jq -R . | jq -s .)
             fi
           fi
-          
+
           echo "Collected files: $files_json"
           echo "added_modified=$files_json" >> $GITHUB_OUTPUT
     outputs:
