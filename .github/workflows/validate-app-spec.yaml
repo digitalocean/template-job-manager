@@ -12,7 +12,10 @@ jobs:
     name: Identify Changed App Specs
     runs-on: ubuntu-latest
     steps:
-
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch all history of all branches
       - name: "Get Changed Files: do/*.y?ml"
         uses: ./.github/workflows/get-changed-files.yaml
         with:
