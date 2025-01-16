@@ -20,22 +20,18 @@ export const LeaseOptions = {
 };
 
 export class LeaseReference {
+    /** @type {LeaseOptions} */
+    #options;
+
+    id = null;
     /**
      * Creates an instance of Lease.
      * @param {LeaseOptions} options - The options for the lease.
      */
     constructor(options) {
+        console.log(options)
         /** @type {string} */
-        this.resource = options.resource;
-        /** @type {string} */
-        this.holder = options.holder;
-        // * @type {string} */
-        this.url = options.serviceUrl;
-        /** @type {RenewConfig} */
-        this.renewConfig = options.renewConfig || {
-            autoRenew: true,
-            interval: RenewConfig.interval
-        };
+        this.#options = options;
         /** @type {number | null} */
         this.id = null;
     }
@@ -45,12 +41,16 @@ export class LeaseReference {
      * @returns {Promise<Lease>}
      */
     async acquire() {
-        const response = await fetch(`${this.url}`, {
+        console.log(this.#options.serviceUrl)
+        const response = await fetch(this.#options.serviceUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ resource: this.resource, holder: this.holder }),
+            body: JSON.stringify({
+                resource: this.#options.resource,
+                holder: this.#options.holder
+            }),
         });
 
         const result = await response.json();
@@ -80,8 +80,15 @@ export class LeaseReference {
             throw new Error('No lease to release.');
         }
 
-        const response = await fetch(`${this.url}/${this.id.id}`, {
+        const response = await fetch(`${this.#options.serviceUrl}/${this.id}`, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                resource: this.#options.resource,
+                holder: this.#options.holder
+            }),
         });
 
         const result = await response.json();
@@ -94,6 +101,7 @@ export class LeaseReference {
         }
 
         this.stopAutoRenew();
+        return result;
     }
 
     /**
@@ -102,12 +110,15 @@ export class LeaseReference {
      */
     async renew() {
         try {
-            const response = await fetch(`${this.url}/renew`, {
+            const response = await fetch(`${this.#options.serviceUrl}/renew`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ resource: this.resource, holder: this.holder }),
+                body: JSON.stringify({
+                    resource: this.#options.resource,
+                    holder: this.#options.holder
+                }),
             });
 
             const result = await response.json();
@@ -120,6 +131,7 @@ export class LeaseReference {
             }
 
             this.id = result;
+            return result;
         } catch (error) {
             if (this.renewConfig?.onError) {
                 this.renewConfig.onError(error);
@@ -148,22 +160,3 @@ export class LeaseReference {
         }
     }
 }
-
-// // Example usage:
-// (async () => {
-//     const myLease = new LeaseReference({
-//         resource: "ABC",
-//         holder: "server-123",
-//         renewConfig: {
-//             autoRenew: true,
-//             interval: 20000,
-//             onError: (error) => {
-//                 console.error('Failed to auto-renew lease:', error);
-//             }
-//         }
-//     });
-
-//     await myLease.acquire();
-//     // do stuff with ABC resource.
-//     await myLease.release();
-// })();
