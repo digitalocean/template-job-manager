@@ -1,4 +1,4 @@
-import { LeaseReference, LeaseOptions } from '@job-manager/leases';
+import { LeaseOptions, Lease, LeaseReference } from '@job-manager/leases/LeasesClient';
 
 // Enum for worker statuses
 export const WorkerStatus = {
@@ -108,21 +108,18 @@ export default class WorkerManager {
                 try {
                     if (!this.#status.isRunning) return;
 
-                    try {
-                        // Execute the worker function and handle its result
-                        const result = await this.#workerFunction();
+                    // Execute the worker function and handle its result
+                    const result = await this.#workerFunction();
 
-                        if (result?.stop) {
-                            await this.#internalStop();
-                            return;
-                        }
-
-                        if (result?.message) {
-                            this.#setStatus(true, this.#status.status, result.message);
-                        }
-                    } catch (error) {
-                        console.error(WorkerMessages.ERROR, error);
+                    if (result?.stop) {
+                        await this.#internalStop();
+                        return;
                     }
+
+                    if (result?.message) {
+                        this.#setStatus(true, this.#status.status, result.message);
+                    }
+
 
                     // Transition to RUNNING after the first execution if no message override
                     if (this.#status.status === WorkerStatus.STARTED) {

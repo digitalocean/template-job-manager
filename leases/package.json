@@ -34,5 +34,8 @@
     "prisma": "^6.2.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2"
+  },
+  "exports": {
+    "./LeasesClient": "./src/app/lib/leases-client.js"
   }
 }
