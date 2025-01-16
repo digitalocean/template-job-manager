@@ -17,7 +17,7 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
         }
 
-        return NextResponse.json({ lease }, { status: 200 });
+        return NextResponse.json(lease, { status: 200 });
     } catch (error) {
         console.error('Error fetching lease:', stringifyError(error));
         return NextResponse.json({ error: 'Failed to fetch lease.' }, { status: 500 });
@@ -27,17 +27,24 @@ export async function GET(req, { params }) {
 // Handle DELETE request to release (delete) a lease by ID 
 export async function DELETE(req, { params }) {
     try {
+        const { holder, resource } = await req.json();
+        if (!holder || holder.length === 0) {
+            return NextResponse.json({ error: 'Missing holder.' }, { status: 400 });
+        }
+
         const id = parseInt((await params).id, 10);
-        const query = `
+
+        const result = await prisma.lease.$queryRaw`
             UPDATE leases
-             SET released_at = NOW(), expires_at = NOW()
-            WHERE id = $1 
+             SET released_at = NOW(), 
+             expires_at = NOW()
+            WHERE 
+                id = ${id}
+                AND holder = ${holder}
             RETURNING *;
         `;
-        const values = [id];
-        const result = await client.query(query, values);
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
         }
 

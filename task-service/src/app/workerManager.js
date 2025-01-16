@@ -1,4 +1,5 @@
-import { Mutex } from 'async-mutex';
+import { LeaseReference, LeaseOptions, RenewConfig } from '../../../leases/src/app/lib/leases-client.js';
+
 
 // Enum for worker statuses
 export const WorkerStatus = {
@@ -17,37 +18,64 @@ export const WorkerMessages = {
 };
 
 /**
- * WorkerManager handles the execution of periodic tasks using a mutex to
+ * @typedef {Object} WorkerStatusType
+ * @property {boolean} isRunning - Indicates whether the worker is running.
+ * @property {string} status - The current worker status.
+ * @property {string} message - A message describing the status.
+ */
+export const WorkerStatusType = {
+    isRunning: false,
+    status: WorkerStatus.STOPPED,
+    message: WorkerMessages.NOT_RUNNING,
+};
+
+/**
+ * @typedef {Object} WorkerManagerConfig
+ * @property {LeaseOptions} leaseClientOptions - The configuration for the underlying leases client.
+ * @property {string} resource - The resource to lease.
+ * @property {string} holder - The holder of the lease.
+ * @property {number} interval - The interval in milliseconds between executions.
+ */
+export const WorkerManagerConfig = {
+    leaseClientOptions: LeaseOptions,
+    interval: 5000,
+};
+
+/**
+ * WorkerManager handles the execution of periodic tasks using a lease to
  * ensure safe state transitions and prevent race conditions.
  */
 export default class WorkerManager {
-    #mutex; // Mutex for thread-safe operations
+    /** @type {LeaseReference} */
+    #lease; // Lease for thread-safe operations
+    /** @type {WorkerStatusType} */
     #status; // Current status of the worker
+    /** @type {function | null} */
     #workerFunction; // Function executed periodically by the worker
+    /** @type {number} */
     #interval; // Interval in milliseconds between executions
+    /** @type {NodeJS.Timeout | null} */
     #intervalId; // ID of the interval timer
 
-    // Singleton instance of WorkerManager
-    static instance = new WorkerManager();
+    /**
+     * @param {WorkerManagerConfig} config - The configuration object for the worker manager.
+     */
+    constructor(config) {
+        config = config || { ...WorkerManagerConfig };
 
-    constructor() {
-        this.#mutex = new Mutex();
-        this.#status = {
-            isRunning: false,
-            status: WorkerStatus.STOPPED,
-            message: WorkerMessages.NOT_RUNNING,
-        };
+        this.#lease = new LeaseReference(config?.leaseClientOptions || { ...LeaseOptions });
+        this.#status = { ...WorkerStatusType };
         this.#workerFunction = null;
-        this.#interval = 5000; // Default interval of 5 seconds
+        this.#interval = config.interval; // Default interval of 5 seconds
         this.#intervalId = null;
     }
 
     /**
      * Retrieves the current status of the worker.
-     * @returns {Promise<object>} The current worker status.
+     * @returns {Promise<WorkerStatusType>} The current worker status.
      */
     async getStatus() {
-        return this.#mutex.runExclusive(() => ({ ...this.#status }));
+        return { ...this.#status };
     }
 
     /**
@@ -55,49 +83,47 @@ export default class WorkerManager {
      * @param {function} workerFunction - The function to execute periodically. It can optionally return an object with:
      *   - `stop` (boolean): If true, the worker stops execution.
      *   - `message` (string): A custom message to update the worker status.
-     * @param {number} interval - The interval in milliseconds between executions.
-     * @returns {Promise<object>} The updated worker status.
+     * @param {number} [interval=5000] - The interval in milliseconds between executions.
+     * @returns {Promise<WorkerStatusType>} The updated worker status.
      */
     async start(workerFunction, interval = 5000) {
-        return this.#mutex.runExclusive(() => {
-            if (this.#status.isRunning) {
-                console.log(WorkerMessages.ALREADY_RUNNING);
-                return { ...this.#status, message: WorkerMessages.ALREADY_RUNNING };
-            }
+        if (this.#status.isRunning) {
+            console.log(WorkerMessages.ALREADY_RUNNING);
+            return { ...this.#status, message: WorkerMessages.ALREADY_RUNNING };
+        }
 
-            if (typeof workerFunction !== 'function') {
-                throw new TypeError('workerFunction must be a function');
-            }
+        if (typeof workerFunction !== 'function') {
+            throw new TypeError('workerFunction must be a function');
+        }
 
-            this.#workerFunction = workerFunction;
-            this.#interval = interval;
+        this.#workerFunction = workerFunction;
+        this.#interval = interval;
 
+        try {
+            await this.#lease.acquire();
             this.#setStatus(true, WorkerStatus.STARTED, WorkerMessages.STARTED);
-
             console.log(WorkerMessages.STARTED);
 
             // Schedule the worker function to run on an interval
             this.#intervalId = setInterval(async () => {
                 try {
-                    await this.#mutex.runExclusive(async () => {
-                        if (!this.#status.isRunning) return;
+                    if (!this.#status.isRunning) return;
 
-                        try {
-                            // Execute the worker function and handle its result
-                            const result = await this.#workerFunction();
+                    try {
+                        // Execute the worker function and handle its result
+                        const result = await this.#workerFunction();
 
-                            if (result?.stop) {
-                                await this.#internalStop();
-                                return;
-                            }
-
-                            if (result?.message) {
-                                this.#setStatus(true, this.#status.status, result.message);
-                            }
-                        } catch (error) {
-                            console.error(WorkerMessages.ERROR, error);
+                        if (result?.stop) {
+                            await this.#internalStop();
+                            return;
                         }
-                    });
+
+                        if (result?.message) {
+                            this.#setStatus(true, this.#status.status, result.message);
+                        }
+                    } catch (error) {
+                        console.error(WorkerMessages.ERROR, error);
+                    }
 
                     // Transition to RUNNING after the first execution if no message override
                     if (this.#status.status === WorkerStatus.STARTED) {
@@ -109,22 +135,23 @@ export default class WorkerManager {
             }, this.#interval);
 
             return { ...this.#status };
-        });
+        } catch (error) {
+            console.error(WorkerMessages.ERROR, error);
+            throw error;
+        }
     }
 
     /**
      * Stops the worker and clears the interval.
-     * @returns {Promise<object>} The updated worker status.
+     * @returns {Promise<WorkerStatusType>} The updated worker status.
      */
     async stop() {
-        return this.#mutex.runExclusive(() => {
-            if (!this.#status.isRunning) {
-                console.log(WorkerMessages.NOT_RUNNING);
-                return { ...this.#status, message: WorkerMessages.NOT_RUNNING };
-            }
+        if (!this.#status.isRunning) {
+            console.log(WorkerMessages.NOT_RUNNING);
+            return { ...this.#status, message: WorkerMessages.NOT_RUNNING };
+        }
 
-            return this.#internalStop();
-        });
+        return this.#internalStop();
     }
 
     /**
@@ -136,36 +163,11 @@ export default class WorkerManager {
             this.#intervalId = null;
         }
 
+        await this.#lease.release();
         this.#setStatus(false, WorkerStatus.STOPPED, WorkerMessages.STOPPED);
         console.log(WorkerMessages.STOPPED);
 
         return { ...this.#status };
-    }
-
-    /**
-     * Static method to start the worker via the singleton instance.
-     * @param {function} workerFunction - The function to execute periodically.
-     * @param {number} interval - The interval in milliseconds between executions.
-     * @returns {Promise<object>} The updated worker status.
-     */
-    static async startWorker(workerFunction, interval) {
-        return WorkerManager.instance.start(workerFunction, interval);
-    }
-
-    /**
-     * Static method to stop the worker via the singleton instance.
-     * @returns {Promise<object>} The updated worker status.
-     */
-    static async stopWorker() {
-        return WorkerManager.instance.stop();
-    }
-
-    /**
-     * Static method to get the current status via the singleton instance.
-     * @returns {Promise<object>} The current worker status.
-     */
-    static async getStatus() {
-        return WorkerManager.instance.getStatus();
     }
 
     /**
@@ -186,3 +188,4 @@ export default class WorkerManager {
         };
     }
 }
+
