@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import WorkerManager, { WorkerMessages, WorkerStatus } from '@/app/workerManager';
+import WorkerManager, { WorkerMessages, WorkerStatus } from '@/app/lib/worker-manager';
 
 const waitForCondition = async (conditionFn, timeout = 10000) => {
     const startTime = Date.now();

@@ -1,21 +1,6 @@
-import { WorkerManager as workerManager } from '@/app/workerManager';
+import { WorkerManager } from '@/app/lib/worker-manager';
 
 const { PrismaClient } = require('@prisma/client')
-
-export const WorkerManager = new workerManager({
-    holder: process.env.HOSTNAME,
-    resource: "urn:task-generator",
-    interval: 2000,
-    leaseClientOptions: {
-        leaseDuration: 10000,
-        leaseRenewInterval: 5000,
-        leaseManagerOptions: {
-            resource: "task-service",
-            holder: process.env.HOSTNAME,
-        },
-    },
-});
-
 
 // Initialize Prisma Client
 const prisma = new PrismaClient()
@@ -45,3 +30,20 @@ export const generatorFunction = async () => {
         console.error('Error creating task:', error);
     }
 };
+
+const generatorService = {
+    wm: new WorkerManager({
+        interval: 2000,
+        workerFunction: generatorFunction,
+        leaseClientOptions: {
+            leaseDuration: 10000,
+            leaseRenewInterval: 5000,
+            serviceUrl: process.env.SERVICE_LEASES_URL,
+            resource: `urn:task-generator:${process.env.NEXT_PUBLIC_URL}`,
+            holder: process.env.HOSTNAME,
+        },
+    }) // Make a singleton instance of WorkerManager  for the generator
+};
+
+
+export const GeneratorService = generatorService.wm;

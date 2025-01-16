@@ -31,12 +31,10 @@ export const WorkerStatusType = {
 /**
  * @typedef {Object} WorkerManagerConfig
  * @property {LeaseOptions} leaseClientOptions - The configuration for the underlying leases client.
- * @property {string} resource - The resource to lease.
- * @property {string} holder - The holder of the lease.
  * @property {number} interval - The interval in milliseconds between executions.
  */
 export const WorkerManagerConfig = {
-    leaseClientOptions: LeaseOptions,
+    leaseClientOptions: null,
     interval: 5000,
 };
 
@@ -44,7 +42,7 @@ export const WorkerManagerConfig = {
  * WorkerManager handles the execution of periodic tasks using a lease to
  * ensure safe state transitions and prevent race conditions.
  */
-export default class WorkerManager {
+export class WorkerManager {
     /** @type {LeaseReference} */
     #lease; // Lease for thread-safe operations
     /** @type {WorkerStatusType} */
@@ -60,10 +58,13 @@ export default class WorkerManager {
      * @param {WorkerManagerConfig} config - The configuration object for the worker manager.
      */
     constructor(config) {
-        console.log(config)
-        this.#lease = new LeaseReference(config.leaseClientOptions);
+        if (typeof config.workerFunction !== 'function') {
+            throw new TypeError('workerFunction must be a function');
+        }
+
+        this.#lease = new LeaseReference(config?.leaseClientOptions);
         this.#status = { ...WorkerStatusType };
-        this.#workerFunction = null;
+        this.#workerFunction = config.workerFunction;
         this.#interval = config.interval; // Default interval of 5 seconds
         this.#intervalId = null;
     }
@@ -77,25 +78,15 @@ export default class WorkerManager {
     }
 
     /**
-     * Starts the worker with the specified function and interval.
-     * @param {function} workerFunction - The function to execute periodically. It can optionally return an object with:
-     *   - `stop` (boolean): If true, the worker stops execution.
-     *   - `message` (string): A custom message to update the worker status.
-     * @param {number} [interval=5000] - The interval in milliseconds between executions.
+     * Starts the worker.
      * @returns {Promise<WorkerStatusType>} The updated worker status.
      */
-    async start(workerFunction, interval = 5000) {
+    async start() {
         if (this.#status.isRunning) {
             console.log(WorkerMessages.ALREADY_RUNNING);
             return { ...this.#status, message: WorkerMessages.ALREADY_RUNNING };
         }
 
-        if (typeof workerFunction !== 'function') {
-            throw new TypeError('workerFunction must be a function');
-        }
-
-        this.#workerFunction = workerFunction;
-        this.#interval = interval;
 
         try {
             await this.#lease.acquire();
@@ -146,6 +137,7 @@ export default class WorkerManager {
             return { ...this.#status, message: WorkerMessages.NOT_RUNNING };
         }
 
+        await this.#lease.release()
         return this.#internalStop();
     }
 

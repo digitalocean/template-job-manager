@@ -27,14 +27,14 @@ export async function GET(req, { params }) {
 // Handle DELETE request to release (delete) a lease by ID 
 export async function DELETE(req, { params }) {
     try {
-        const { holder, resource } = await req.json();
+        const { holder } = await req.json();
         if (!holder || holder.length === 0) {
             return NextResponse.json({ error: 'Missing holder.' }, { status: 400 });
         }
 
         const id = parseInt((await params).id, 10);
 
-        const result = await prisma.lease.$queryRaw`
+        const result = await prisma.$queryRaw`
             UPDATE leases
              SET released_at = NOW(), 
              expires_at = NOW()
