@@ -1,4 +1,5 @@
 import { Lease } from '@prisma/client';
+import Lease from '../components/Lease';
 
 /**
  * @typedef {Object} RenewConfig
@@ -167,3 +168,12 @@ export class LeaseReference {
 //     // do stuff with ABC resource.
 //     await myLease.release();
 // })();
+
+
+module.exports = {
+    ...module.exports,
+    LeaseReference,
+    LeaseOptions,
+    RenewConfig,
+    Lease
+};

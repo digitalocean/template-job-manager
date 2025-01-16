@@ -1,0 +1,8 @@
+{
+  "name": "job-manager",
+  "private": true,
+  "workspaces": [
+    "task-service",
+    "leases"
+  ]
+}

@@ -1,5 +1,4 @@
-import { LeaseReference, LeaseOptions, RenewConfig } from '../../../leases/src/app/lib/leases-client.js';
-
+import { LeaseReference, LeaseOptions } from '@job-manager/leases';
 
 // Enum for worker statuses
 export const WorkerStatus = {
