@@ -1,4 +1,21 @@
+import { WorkerManager as workerManager } from '@/app/workerManager';
+
 const { PrismaClient } = require('@prisma/client')
+
+export const WorkerManager = new workerManager({
+    holder: process.env.HOSTNAME,
+    resource: "urn:task-generator",
+    interval: 2000,
+    leaseClientOptions: {
+        leaseDuration: 10000,
+        leaseRenewInterval: 5000,
+        leaseManagerOptions: {
+            resource: "task-service",
+            holder: process.env.HOSTNAME,
+        },
+    },
+});
+
 
 // Initialize Prisma Client
 const prisma = new PrismaClient()

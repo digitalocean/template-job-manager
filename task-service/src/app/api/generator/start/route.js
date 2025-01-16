@@ -1,7 +1,7 @@
-import WorkerManager, { WorkerStatus } from '@/app/workerManager';
 import { generatorFunction } from '@/app/generator';
 import { NextResponse } from 'next/server'
 import { stringifyError } from 'next/dist/shared/lib/utils';
+import { WorkerManager } from '@/app/generator';
 
 // Handle POST request to start the worker
 export async function POST(req) {

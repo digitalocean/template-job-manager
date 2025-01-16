@@ -44,7 +44,7 @@ export const WorkerManagerConfig = {
  * WorkerManager handles the execution of periodic tasks using a lease to
  * ensure safe state transitions and prevent race conditions.
  */
-export default class WorkerManager {
+ default class WorkerManager {
     /** @type {LeaseReference} */
     #lease; // Lease for thread-safe operations
     /** @type {WorkerStatusType} */

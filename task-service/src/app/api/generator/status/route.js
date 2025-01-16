@@ -1,4 +1,4 @@
-import WorkerManager from '@/app/workerManager';
+import { WorkerManager } from '@/app/generator';
 import { stringifyError } from 'next/dist/shared/lib/utils';
 import { NextResponse } from 'next/server'
 
