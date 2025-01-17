@@ -1,7 +1,3 @@
-/**
- * @file WorkerManager.test.js
- */
-
 import { WorkerManager, WorkerStatus, WorkerMessages } from '@/app/lib/worker-manager';
 import { LeaseReference } from '@job-manager/leases/LeasesClient';
 
