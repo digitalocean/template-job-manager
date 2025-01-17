@@ -41,4 +41,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-task-service/coverage
+task-service/coverage/
+leases/coverage/
