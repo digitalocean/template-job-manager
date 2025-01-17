@@ -106,15 +106,12 @@ export class WorkerManager {
                         return;
                     }
 
-                    if (result?.message) {
-                        this.#setStatus(true, this.#status.status, result.message);
-                    }
-
-
-                    // Transition to RUNNING after the first execution if no message override
                     if (this.#status.status === WorkerStatus.STARTED) {
-                        this.#setStatus(true, WorkerStatus.RUNNING, WorkerMessages.STARTED);
+                        // carry over the custom message if it exists, otherwise default to 'Worker started.'
+                        const newMessage = result?.message || WorkerMessages.STARTED;
+                        this.#setStatus(true, WorkerStatus.RUNNING, newMessage);
                     }
+
                 } catch (error) {
                     console.error(WorkerMessages.ERROR, error);
                 }

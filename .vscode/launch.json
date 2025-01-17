@@ -17,6 +17,27 @@
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}/leases"
+        },
+        {
+            "type": "node",
+            "name": "vscode-jest-tests.v2.sample-job-manager",
+            "request": "launch",
+            "args": [
+                "run",
+                "test",
+                "--workspaces",
+                "--",
+                "--runInBand",
+                "--watchAll=false",
+                "--testNamePattern",
+                "${jest.testNamePattern}",
+                "--runTestsByPath",
+                "${jest.testFile}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "runtimeExecutable": "npm"
         }
     ],
     "compounds": [
