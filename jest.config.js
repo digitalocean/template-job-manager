@@ -1,4 +1,4 @@
-const nextJest = require('next/jest')
+import nextJest from 'next/jest';
 
 /**
  * For a detailed explanation regarding each configuration property, visit:
@@ -23,7 +23,9 @@ const config = {
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
-
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  }
 };
 
-module.exports = createJestConfig(config);
+export default createJestConfig(config);

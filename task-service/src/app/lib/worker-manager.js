@@ -1,4 +1,4 @@
-import { LeaseOptions, LeaseReference } from '@job-manager/leases/LeasesClient';
+import { LeaseOptions, Lease, LeaseReference } from '@job-manager/leases/LeasesClient';
 
 // Enum for worker statuses
 export const WorkerStatus = {
