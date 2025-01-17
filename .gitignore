@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+task-service/coverage/clover.xml
+task-service/coverage/coverage-final.json
+task-service/coverage/lcov.info
+task-service/coverage/lcov-report/index.html
