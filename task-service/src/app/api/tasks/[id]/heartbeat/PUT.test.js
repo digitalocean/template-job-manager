@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { PUT } from './route';
 import { prisma } from '@/app/lib/prisma-client';
 
@@ -30,10 +29,18 @@ describe('PUT handler', () => {
         // Reset mocks before each test
         jest.clearAllMocks();
 
+        // Mock the global fetch function
+        global.fetch = jest.fn();
+
         // A default request object with a valid processor
         mockRequest = {
             json: jest.fn().mockResolvedValue({ processor: 'test-processor' }),
         };
+
+    });
+
+    afterEach(() => {
+        delete global.fetch; // Clean up the global mock
     });
 
     it('should return 400 if processor is missing or empty', async () => {
