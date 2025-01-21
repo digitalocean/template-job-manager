@@ -6,7 +6,11 @@ import { Lease } from '@prisma/client';
  * @property {number} interval - The interval in milliseconds for auto-renewal.
  * @property {function(Error):void} [onError] - Callback function to handle errors during auto-renewal.
  */
-export const RenewConfig = { interval: 15000 };
+export const RenewConfig = {
+    interval: 15000,
+    autoRenew: false,
+    onError: null,
+};
 
 /**
  * @typedef {Object} LeaseOptions
@@ -17,23 +21,28 @@ export const RenewConfig = { interval: 15000 };
  */
 export const LeaseOptions = {
     serviceUrl: '/api/leases',
+    resource: null,
+    holder: null,
+    renewConfig: {
+        ...RenewConfig
+    }
 };
 
 export class LeaseReference {
     /** @type {LeaseOptions} */
     #options;
 
+    /** @type {number|null} */
     id = null;
+    /** @type {number|null} */
+    autoRenewInterval = null;
+
     /**
-     * Creates an instance of Lease.
+     * Creates an instance of LeaseReference.
      * @param {LeaseOptions} options - The options for the lease.
      */
     constructor(options) {
-        console.log(options)
-        /** @type {string} */
         this.#options = options;
-        /** @type {number | null} */
-        this.id = null;
     }
 
     /**
@@ -41,12 +50,9 @@ export class LeaseReference {
      * @returns {Promise<Lease>}
      */
     async acquire() {
-        console.log(this.#options.serviceUrl)
         const response = await fetch(this.#options.serviceUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 resource: this.#options.resource,
                 holder: this.#options.holder
@@ -54,17 +60,18 @@ export class LeaseReference {
         });
 
         const result = await response.json();
+
         if (!response.ok) {
             if (response.status === 409) {
-                throw new Error(result?.message | { message: 'Resource is already leased.' });
+                throw new Error(result?.message || 'Resource is already leased.');
             }
-
-            throw new Error(result?.message | 'Failed to acquire lease.');
+            throw new Error(result?.message || 'Failed to acquire lease.');
         }
 
         this.id = result.id;
 
-        if (this.renewConfig?.autoRenew) {
+        // If autoRenew is enabled
+        if (this.#options.renewConfig.autoRenew) {
             this.startAutoRenew();
         }
 
@@ -82,9 +89,7 @@ export class LeaseReference {
 
         const response = await fetch(`${this.#options.serviceUrl}/${this.id}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 resource: this.#options.resource,
                 holder: this.#options.holder
@@ -94,9 +99,8 @@ export class LeaseReference {
         const result = await response.json();
         if (!response.ok) {
             if (response.status === 409) {
-                throw new Error(result?.message | { message: `Lease either doesn't exist or has expired.` });
+                throw new Error(result?.message || `Lease either doesn't exist or has expired.`);
             }
-
             throw new Error(result.message || 'Failed to release lease.');
         }
 
@@ -106,15 +110,15 @@ export class LeaseReference {
 
     /**
      * Renews the current lease.
-     * @returns {Promise<void>}
+     * @returns {Promise<number|void>} 
+     *    - If success, returns the new lease ID 
+     *    - If it fails and there's an onError callback, it won't throw (unless you re-throw).
      */
     async renew() {
         try {
             const response = await fetch(`${this.#options.serviceUrl}/renew`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     resource: this.#options.resource,
                     holder: this.#options.holder
@@ -125,7 +129,8 @@ export class LeaseReference {
             if (!response.ok) {
                 if (response.status === 409) {
                     this.stopAutoRenew();
-                    throw new Error(result?.message | { message: `Lease either doesn't exist or has expired.` });
+                    // again, use || not |
+                    throw new Error(result?.message || `Lease either doesn't exist or has expired.`);
                 }
                 throw new Error(result.message || 'Failed to renew lease.');
             }
@@ -133,11 +138,12 @@ export class LeaseReference {
             this.id = result;
             return result;
         } catch (error) {
-            if (this.renewConfig?.onError) {
-                this.renewConfig.onError(error);
-            } else {
-                console.error('Auto-renewal error:', error);
+            // If you want the method to reject on error, re-throw:
+            if (this.#options.renewConfig.onError) {
+                this.#options.renewConfig.onError(error);
             }
+            // Either re-throw or return:
+            throw error;
         }
     }
 
@@ -145,8 +151,10 @@ export class LeaseReference {
      * Starts the auto-renewal process.
      */
     startAutoRenew() {
-        if (this.renewConfig?.interval) {
-            this.autoRenewInterval = setInterval(() => this.renew(), this.renewConfig.interval);
+        console.log('Starting auto-renew with interval:', this.#options.renewConfig?.interval);
+
+        if (this.#options.renewConfig.interval) {
+            this.autoRenewInterval = setInterval(async () => await this.renew(), this.#options.renewConfig.interval);
         }
     }
 
@@ -154,6 +162,8 @@ export class LeaseReference {
      * Stops the auto-renewal process.
      */
     stopAutoRenew() {
+        console.log('Stopping auto-renew with interval ID:', this.#options.renewConfig.interval);
+
         if (this.autoRenewInterval) {
             clearInterval(this.autoRenewInterval);
             this.autoRenewInterval = null;

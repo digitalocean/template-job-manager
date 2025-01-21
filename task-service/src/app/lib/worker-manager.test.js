@@ -1,5 +1,5 @@
 import { WorkerManager, WorkerStatus, WorkerMessages } from '@/app/lib/worker-manager';
-import { LeaseReference } from '@job-manager/leases/LeasesClient';
+import { LeaseReference, LeaseOptions } from '@job-manager/leases/LeasesClient';
 
 // Mock the LeaseReference from @job-manager/leases/LeasesClient
 jest.mock('@job-manager/leases/LeasesClient', () => ({
@@ -27,8 +27,8 @@ describe('WorkerManager', () => {
 
         // Provide a default valid config
         config = {
+            ...LeaseOptions,
             workerFunction,
-            leaseClientOptions: {},
             interval: 100, // keep it small for tests
         };
 
