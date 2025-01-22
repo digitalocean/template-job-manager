@@ -26,7 +26,8 @@ export async function POST(req) {
                 SET 
                     holder = ${holder},
                     created_at = NOW(),
-                    
+                    renewed_at = null,
+                    released_at = null,
                     expires_at = NOW() + INTERVAL '30 seconds'
             WHERE leases.expires_at <= NOW()
             RETURNING *;

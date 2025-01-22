@@ -27,11 +27,13 @@ export async function GET(req, { params }) {
 // Handle DELETE request to release (delete) a lease by ID 
 export async function DELETE(req, { params }) {
     try {
-        const { holder } = await req.json();
+        const { holder, resource } = await req.json();
         if (!holder || holder.length === 0) {
             return NextResponse.json({ error: 'Missing holder.' }, { status: 400 });
         }
-
+        if (!resource || resource.length === 0) {
+            return NextResponse.json({ error: 'Missing resource.' }, { status: 400 });
+        }
         const id = parseInt((await params).id, 10);
 
         const result = await prisma.$queryRaw`
@@ -41,6 +43,7 @@ export async function DELETE(req, { params }) {
             WHERE 
                 id = ${id}
                 AND holder = ${holder}
+                AND resource = ${resource}
             RETURNING *;
         `;
 

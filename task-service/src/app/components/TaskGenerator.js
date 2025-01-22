@@ -1,5 +1,6 @@
 "use client";
 
+import { stringifyError } from "next/dist/shared/lib/utils";
 import React, { useState, useEffect } from "react";
 import useSWR from 'swr';
 
@@ -31,14 +32,16 @@ export default function TaskGenerator() {
             const response = await fetch('/api/generator/start', { method: 'POST' });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Server error');
+                setStatus("Error starting worker");
+                setMessage(errorData.message || "Server Error");
+                return;
             }
             const result = await response.json();
             setStatus(result.status);
             setMessage(result.message);
         } catch (error) {
             setStatus("Error starting worker");
-            setMessage(error.message || "");
+            setMessage(stringifyError(error) || "Server Error");
         } finally {
             setIsLoading(false);
         }
@@ -51,7 +54,9 @@ export default function TaskGenerator() {
             const response = await fetch('/api/generator/stop', { method: 'DELETE' });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Server error');
+                setStatus("Error starting worker");
+                setMessage(errorData.message || "Server Error");
+                return;
             }
             const result = await response.json();
             setStatus(result.status);

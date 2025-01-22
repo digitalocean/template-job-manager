@@ -36,8 +36,14 @@ const generatorService = {
         interval: 2000,
         workerFunction: generatorFunction,
         leaseClientOptions: {
-            leaseDuration: 10000,
-            leaseRenewInterval: 5000,
+            renewConfig: {
+                interval: 15000,
+                autoRenew: true,
+                onError: (error) => {
+                    console.error('Error renewing lease:', error);
+                },
+
+            },
             serviceUrl: process.env.SERVICE_LEASES_URL,
             resource: `urn:task-generator:${process.env.NEXT_PUBLIC_URL}`,
             holder: process.env.HOSTNAME,

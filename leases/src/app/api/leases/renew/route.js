@@ -26,7 +26,7 @@ export async function PUT(req) {
             RETURNING *;`;
 
         if (updatedRows.length === 0) {
-            return NextResponse.json({ error: 'No eligible lease exists for that resource and holder.' }, { status: 404 });
+            return NextResponse.json({ error: `No eligible lease exists for that resource and holder: ${holder} / resource: ${resource} ` }, { status: 404 });
         }
 
         return NextResponse.json(updatedRows[0], { status: 201 });

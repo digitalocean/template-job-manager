@@ -89,7 +89,12 @@ export class WorkerManager {
 
 
         try {
-            await this.#lease.acquire();
+            const result = await this.#lease.acquire();
+            if (result?.error) {
+                this.#setStatus(this.#status?.isRunning || false, this.#status?.status || WorkerStatus.STOPPED, result.error);
+                return this.#status;
+            }
+
             this.#setStatus(true, WorkerStatus.STARTED, WorkerMessages.STARTED);
             console.log(WorkerMessages.STARTED);
 
@@ -134,7 +139,6 @@ export class WorkerManager {
             return { ...this.#status, message: WorkerMessages.NOT_RUNNING };
         }
 
-        await this.#lease.release()
         return this.#internalStop();
     }
 

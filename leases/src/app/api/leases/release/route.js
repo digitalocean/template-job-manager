@@ -17,7 +17,7 @@ export async function DELETE(req) {
             UPDATE leases
             SET 
                 released_at = NOW(),
-                expires_at = NOW() + INTERVAL '30 seconds'
+                expires_at = NOW()
             WHERE
                 holder = ${holder} 
                 AND resource = ${resource}

@@ -63,9 +63,9 @@ export class LeaseReference {
 
         if (!response.ok) {
             if (response.status === 409) {
-                throw new Error(result?.message || 'Resource is already leased.');
+                return { error: result?.error || 'Resource is already leased.' };
             }
-            throw new Error(result?.message || 'Failed to acquire lease.');
+            throw new Error(result?.error || 'Failed to acquire lease.');
         }
 
         this.id = result.id;
@@ -86,26 +86,33 @@ export class LeaseReference {
         if (!this.id) {
             throw new Error('No lease to release.');
         }
+        try {
+            console.log(JSON.stringify(this.id));
+            const response = await fetch(`${this.#options.serviceUrl}/${this.id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resource: this.#options.resource,
+                    holder: this.#options.holder
+                }),
+            });
 
-        const response = await fetch(`${this.#options.serviceUrl}/${this.id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                resource: this.#options.resource,
-                holder: this.#options.holder
-            }),
-        });
-
-        const result = await response.json();
-        if (!response.ok) {
-            if (response.status === 409) {
-                throw new Error(result?.message || `Lease either doesn't exist or has expired.`);
+            const result = await response.json();
+            if (!response.ok) {
+                if (response.status === 409) {
+                    throw new Error(result?.error || `Lease either doesn't exist or has expired.`);
+                }
+                throw new Error(result.error || 'Failed to release lease.');
             }
-            throw new Error(result.message || 'Failed to release lease.');
-        }
 
-        this.stopAutoRenew();
-        return result;
+            this.stopAutoRenew();
+            return result;
+        } catch (error) {
+            if (this.#options.renewConfig.onError) {
+                this.#options.renewConfig.onError(error);
+            }
+            throw error;
+        }
     }
 
     /**
@@ -129,20 +136,18 @@ export class LeaseReference {
             if (!response.ok) {
                 if (response.status === 409) {
                     this.stopAutoRenew();
-                    // again, use || not |
-                    throw new Error(result?.message || `Lease either doesn't exist or has expired.`);
+                    throw new Error(result?.error || `Lease either doesn't exist or has expired.`);
                 }
-                throw new Error(result.message || 'Failed to renew lease.');
+                console.error(`Failed to renew lease. Status: ${response.status}, error: ${result?.error || 'Unknown error'}`);
+                throw new Error(result.error || 'Failed to renew lease.');
             }
 
-            this.id = result;
+            this.id = result.id;
             return result;
         } catch (error) {
-            // If you want the method to reject on error, re-throw:
             if (this.#options.renewConfig.onError) {
                 this.#options.renewConfig.onError(error);
             }
-            // Either re-throw or return:
             throw error;
         }
     }
@@ -154,7 +159,13 @@ export class LeaseReference {
         console.log('Starting auto-renew with interval:', this.#options.renewConfig?.interval);
 
         if (this.#options.renewConfig.interval) {
-            this.autoRenewInterval = setInterval(async () => await this.renew(), this.#options.renewConfig.interval);
+            this.autoRenewInterval = setInterval(async () => {
+                try {
+                    await this.renew();
+                } catch (error) {
+                    console.error('Auto-renewal failed:', error);
+                }
+            }, this.#options.renewConfig.interval);
         }
     }
 

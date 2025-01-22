@@ -164,7 +164,7 @@ describe('WorkerManager', () => {
             const updatedStatus = await workerManagerInstance.stop();
 
             // The lease should have been released
-            expect(leaseInstance.release).toHaveBeenCalledTimes(2);
+            expect(leaseInstance.release).toHaveBeenCalledTimes(1);
             // Explanation for "2": 
             // 1) The internal #internalStop also calls release. 
             // Or you can check exactly where you expect releases.
