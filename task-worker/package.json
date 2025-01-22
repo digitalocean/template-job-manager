@@ -1,0 +1,30 @@
+{
+  "name": "task-worker",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "test",
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalocean/sample-job-manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/digitalocean/sample-job-manager/issues"
+  },
+  "homepage": "https://github.com/digitalocean/sample-job-manager#readme",
+  "description": "",
+  "dependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "commander": "^9.4.0",
+    "dotenv": "^16.4.7",
+    "task-service": "file:../task-service/src/lib/tasks-client.js"
+  },
+  "bin": {
+    "task-worker": "./main.js"
+  }
+}

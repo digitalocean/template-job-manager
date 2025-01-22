@@ -97,3 +97,18 @@ services:
     name: leases
     run_command: npm start
     source_dir: leases
+workers:
+  - environment_slug: node-js
+    envs:
+      - key: TASK_SERVICE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://demo-job-manager-mhyct.ondigitalocean.app
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: digitalocean/sample-job-manager
+    instance_count: 3
+    instance_size_slug: apps-s-1vcpu-1gb
+    name: task-worker
+    run_command: ./main.js
+    source_dir: task-worker

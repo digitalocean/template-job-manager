@@ -7,6 +7,7 @@
   },
   "workspaces": [
     "task-service",
-    "leases"
+    "leases",
+    "task-worker"
   ]
 }
