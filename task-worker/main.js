@@ -3,7 +3,7 @@ import { complete, getNextTask, heartBeat } from './tasks-client.js';
 const heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 15000; // 15 seconds
 
 const logger = (taskId, message) => {
-    console.log(`[ ${new Date().toLocaleString()}${taskId ? ` ID: ${taskId}` : ``} ] ${message}`);
+    console.log(`[ ${process.env.HOSTNAME} ${taskId ? ` ID: ${taskId}` : ``} ] ${message}`);
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,7 +12,7 @@ const doWork = async () => {
     while (true) {
         let task = null;
         try {
-            console.log(`🔍 Looking for tasks...`);
+            logger(null, `🔍 Looking for tasks...`);
             task = await getNextTask();
 
             if (!task || (!task.taskData && task.message)) {
