@@ -1,0 +1,12 @@
+{
+  "name": "job-manager",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces ",
+    "test": "npm run test --workspaces "
+  },
+  "workspaces": [
+    "task-service",
+    "leases"
+  ]
+}

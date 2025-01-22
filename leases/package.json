@@ -1,6 +1,6 @@
 {
-  "name": "leases",
-  "version": "0.1.0",
+  "name": "@job-manager/leases",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -14,8 +14,8 @@
     "test:detectOpenHandles": "jest --detectOpenHandles"
   },
   "dependencies": {
-    "async-mutex": "^0.5.0",
     "@prisma/client": "^6.2.1",
+    "async-mutex": "^0.5.0",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -30,9 +30,12 @@
     "eslint-config-next": "15.1.4",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "ts-node": "^10.9.2",
     "postcss": "^8",
     "prisma": "^6.2.1",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2"
+  },
+  "exports": {
+    "./LeasesClient": "./src/app/lib/leases-client.js"
   }
 }
