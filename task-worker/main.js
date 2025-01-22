@@ -16,7 +16,7 @@ const doWork = async () => {
             task = await getNextTask();
 
             if (!task || (!task.taskData && task.message)) {
-                logger(null, `📨 No tasks available or message received: ${task ? task.message : 'No task'}`);
+                logger(null, `📨 ${task ? task.message : 'No task'}`);
                 await sleep(5000); // Wait before checking for the next task
                 continue;
             }
