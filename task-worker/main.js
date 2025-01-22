@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { complete, getNextTask, heartBeat } from './tasks-client.js';
 const heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 15000; // 15 seconds
 
