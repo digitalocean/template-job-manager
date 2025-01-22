@@ -1,11 +1,11 @@
 {
   "name": "task-worker",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "scripts": {
     "test": "test",
-    "start": "node ./index.js"
+    "start": "node ./main.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,6 @@
     "@eslint/eslintrc": "^3.2.0",
     "commander": "^9.4.0",
     "dotenv": "^16.4.7",
-    "task-service": "file:../task-service/src/lib/tasks-client.js"
   },
   "bin": {
     "task-worker": "./main.js"
