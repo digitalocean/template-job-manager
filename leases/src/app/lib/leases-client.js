@@ -173,7 +173,7 @@ export class LeaseReference {
      * Stops the auto-renewal process.
      */
     stopAutoRenew() {
-        console.log('Stopping auto-renew with interval ID:', this.#options.renewConfig.interval);
+        console.log('Stopping auto-renew with interval:', this.#options.renewConfig.interval);
 
         if (this.autoRenewInterval) {
             clearInterval(this.autoRenewInterval);
