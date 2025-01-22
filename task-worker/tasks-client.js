@@ -1,9 +1,4 @@
-import { config } from 'dotenv';
-
-config();
-
-
-const taskServiceUrl = process.env.TASK_SERVICE_URL || '';
+const taskServiceUrl = process.env.TASK_SERVICE_URL || 'http://localhost:3000';
 
 export const heartBeat = async (task) => {
     const response = await fetch(`${taskServiceUrl}/api/tasks/${task.id}/heartbeat`, {
