@@ -103,7 +103,8 @@ export default function TaskGenerator() {
             <div className="flex gap-4 mt-4 px-4 py-4 border border-gray-300">
                 <p>The Task Generator produces tasks for the worker processes using a random sleep interval to simulate work.</p>
                 <p>Notice how the status fluctuates between running and stopped. This is because multiple instances are serving requests for the status data, however only the lease holder has the state as it is the instance generating the tasks.</p>
-                <p> Try starting the generator again; you'll see how the lease prevents other instances from performing the same work.</p>
+                <p>Try starting the generator again; you'll see how the lease prevents other instances from performing the same work.</p>
+                <p>This also means Stopping the generator behaves the same way. To truely stop it'll you'll have to press it a few times hoping to get the lease holder instance.</p>
             </div>
         </div>
     );
