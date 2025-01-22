@@ -26,5 +26,9 @@
   },
   "bin": {
     "task-worker": "./main.js"
+  },
+  "engines": {
+    "npm": "10.x",
+    "node": "22.x"
   }
 }
