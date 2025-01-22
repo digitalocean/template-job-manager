@@ -12,10 +12,11 @@ const doWork = async () => {
     while (true) {
         let task = null;
         try {
+            console.log(`🔍 Looking for tasks...`);
             task = await getNextTask();
 
-            if (!task.taskData && task.message) {
-                logger(null, `📨 ${task.message}`);
+            if (!task || (!task.taskData && task.message)) {
+                logger(null, `📨 No tasks available or message received: ${task ? task.message : 'No task'}`);
                 await sleep(5000); // Wait before checking for the next task
                 continue;
             }
@@ -26,7 +27,10 @@ const doWork = async () => {
         }
 
         let ticks = 0;
+        let heartbeatInProgress = false;
         let heartbeatTimer = setInterval(async () => {
+            if (heartbeatInProgress) return;
+            heartbeatInProgress = true;
             try {
                 const r = await heartBeat(task);
                 if (r.lease_expired) {
@@ -36,7 +40,6 @@ const doWork = async () => {
                 }
                 task = r;
                 logger(task.id, `💓 renewed for ${(new Date(task.mustHeartBeatBefore) - new Date(task.lastHeartBeatAt)) / 1000} seconds.`);
-                logger(task.id, `⌛ Next heartbeat in ${heartbeatInterval / 1000} seconds...`);
 
                 const chaos = Math.random();
                 if (chaos < 0.1 && ticks % 2 == 0) {
@@ -46,8 +49,10 @@ const doWork = async () => {
                     logger(task.id, `🔔 Resuming from latency, now working for another ${task.taskData.sleep_duration_seconds - ticks} seconds...`);
                 }
             } catch (error) {
-                logger(null, `Error: ${error.message}`);
+                logger(null, `Heartbeat Error: ${error.message}`);
                 clearInterval(heartbeatTimer);
+            } finally {
+                heartbeatInProgress = false;
             }
         }, heartbeatInterval);
 
@@ -61,7 +66,7 @@ const doWork = async () => {
                 const chaos = Math.random();
                 if (chaos < 0.05 && ticks % 5 == 0) {
                     logger(task.id, `🙊 Simulated worker failure`);
-                    process.exit(-1);
+                    process.exit(1);
                 }
 
                 await sleep(1000);
