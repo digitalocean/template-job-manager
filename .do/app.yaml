@@ -110,5 +110,5 @@ workers:
     instance_count: 3
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-worker
-    run_command: ./main.js
+    run_command: node ./main.js
     source_dir: task-worker

@@ -4,7 +4,6 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "test": "test",
     "start": "node ./main.js"
   },
   "repository": {

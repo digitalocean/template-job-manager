@@ -1,15 +1,5 @@
-#!/usr/bin/env node
 import { complete, getNextTask, heartBeat } from './tasks-client.js';
-import { program } from 'commander';
-
-program
-    .version('0.0.1')
-    .description('Task Worker CLI Tool')
-    .option('-hbi, --heartbeat-interval <interval>', 'Specify the heartbeat interval in milliseconds', 15000)  // 15 seconds
-    .parse(process.argv);
-
-const options = program.opts();
-const heartbeatInterval = options.heartbeatInterval || 15000;
+const heartbeatInterval = process.env.HEARTBEAT_INTERVAL || 15000; // 15 seconds
 
 const logger = (taskId, message) => {
     console.log(`[ ${new Date().toLocaleString()}${taskId ? ` ID: ${taskId}` : ``} ] ${message}`);
