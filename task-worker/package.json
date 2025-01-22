@@ -17,11 +17,7 @@
   },
   "homepage": "https://github.com/digitalocean/sample-job-manager#readme",
   "description": "",
-  "dependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "commander": "^9.4.0",
-    "dotenv": "^16.4.7"
-  },
+  "dependencies": {},
   "bin": {
     "task-worker": "./main.js"
   },
