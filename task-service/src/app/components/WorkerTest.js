@@ -102,6 +102,11 @@ export default function WorkerTest() {
     return (
         <div className="mt-4 p-4">
             <h3 className="text-lg font-semibold mb-2">Worker Testing</h3>
+
+            <div className="flex gap-4 mt-4 px-4 py-4 border border-gray-300">
+                This component simulates a worker that processes tasks, inside your browser. The worker will fetch a single task from the server, process it, and then complete the task. The worker will also perform heartbeats to renew the lease on the task. The worker will simulate various failure scenarios, such as high latency and worker failures, to test the robustness of the system.
+            </div>
+
             <button onClick={async () => { doWork() }} className="mt-4 bg-green-600 text-white rounded-full px-4 py-2 hover:bg-green-700 transition">
                 Run a Single Job
             </button>
