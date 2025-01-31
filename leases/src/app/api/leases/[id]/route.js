@@ -44,6 +44,7 @@ export async function DELETE(req, { params }) {
                 id = ${id}
                 AND holder = ${holder}
                 AND resource = ${resource}
+                AND released_at is null
             RETURNING *;
         `;
 
