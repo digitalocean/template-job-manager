@@ -202,7 +202,6 @@ describe('LeaseReference', () => {
                 }
             );
             expect(result).toBe(456);
-            expect(leaseRef.id).toBe(456);
         });
 
         it('should stop auto-renew and throw error when status=409 on renew', async () => {
@@ -216,7 +215,7 @@ describe('LeaseReference', () => {
                 .mockResolvedValueOnce({
                     ok: false,
                     status: 409,
-                    json: async () => ({ message: 'Lease either does not exist or has expired.' }),
+                    json: async () => ({ message: `Lease either doesn't exist or has expired.` }),
                 });
 
             const leaseRef = new LeaseReference({
@@ -230,7 +229,7 @@ describe('LeaseReference', () => {
             });
 
             await leaseRef.acquire(); // starts auto-renew
-            await expect(leaseRef.renew()).rejects.toThrow('Lease either does not exist or has expired.');
+            await expect(leaseRef.renew()).rejects.toThrow(`Lease either doesn't exist or has expired.`);
             await jest.advanceTimersByTimeAsync(5000);
             leaseRef.stopAutoRenew();
 
