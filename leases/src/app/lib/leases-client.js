@@ -63,7 +63,7 @@ export class LeaseReference {
 
         if (!response.ok) {
             if (response.status === 409) {
-                return { error: result?.error || 'Resource is already leased.' };
+                throw new Error(result?.error || 'Resource is already leased.');
             }
             throw new Error(result?.error || 'Failed to acquire lease.');
         }
