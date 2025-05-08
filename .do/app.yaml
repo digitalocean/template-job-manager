@@ -48,7 +48,7 @@ jobs:
     github:
       branch: main
       deploy_on_push: true
-      repo: digitalocean/sample-job-manager
+      repo: digitalocean/template-job-manager
     instance_count: 2
     instance_size_slug: apps-s-1vcpu-1gb
     kind: PRE_DEPLOY
@@ -72,7 +72,7 @@ services:
     github:
       branch: main
       deploy_on_push: true
-      repo: digitalocean/sample-job-manager
+      repo: digitalocean/template-job-manager
     http_port: 8080
     instance_count: 3
     instance_size_slug: apps-s-1vcpu-1gb
@@ -90,7 +90,7 @@ services:
     github:
       branch: main
       deploy_on_push: true
-      repo: digitalocean/sample-job-manager
+      repo: digitalocean/template-job-manager
     http_port: 8080
     instance_count: 2
     instance_size_slug: apps-s-1vcpu-1gb
@@ -106,7 +106,7 @@ workers:
     github:
       branch: main
       deploy_on_push: true
-      repo: digitalocean/sample-job-manager
+      repo: digitalocean/template-job-manager
     instance_count: 3
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-worker
