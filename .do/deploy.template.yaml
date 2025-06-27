@@ -2,9 +2,47 @@
 
 spec:
   name: template-job-manager
+  
   services:
     - environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-task-service.DATABASE_URL}
+        - key: NEXT_PUBLIC_URL
+          scope: RUN_AND_BUILD_TIME
+          value: https://demo-job-manager-mhyct.ondigitalocean.app
+        - key: SERVICE_LEASES_URL
+          scope: RUN_AND_BUILD_TIME
+          value: http://leases:8080/api/leases
+      github:
+        branch: main
+        repo: digitalocean/template-job-manager
+      name: task-service
+      run_command: npm start
+    - environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-leases.DATABASE_URL}
+        - key: NEXT_PUBLIC_URL
+          scope: RUN_AND_BUILD_TIME
+          value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
+      github:
+        branch: main
+        repo: digitalocean/template-job-manager
+      name: leases
+      run_command: npm start
+
+
+  workers:
+    - name: task-worker
+      environment_slug: node-js
       git:
-        branch: task-service
+        branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-      name: template-job-manager
+        source_dir: /
+      envs:
+        - key: TASK_SERVICE_URL
+          value: https://demo-job-manager-mhyct.ondigitalocean.app
+      run_command: node ./main.js
