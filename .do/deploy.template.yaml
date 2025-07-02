@@ -16,9 +16,10 @@ spec:
     - key: DATABASE_URL
       scope: RUN_TIME
       value: ${db-task-service.DATABASE_URL}
-    github:
+    git:
       branch: main
-      repo: digitalocean/template-job-manager
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    source_dir: /
     run_command: npx prisma migrate deploy
 
   - name: migrations=leases
@@ -27,9 +28,10 @@ spec:
     - key: DATABASE_URL
       scope: RUN_TIME
       value: ${db-leases.DATABASE_URL}
-    github:
+    git:
       branch: main
-      repo: digitalocean/template-job-manager
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    source_dir: /
     run_command: npx prisma migrate deploy
   
   services:
@@ -44,9 +46,10 @@ spec:
         - key: SERVICE_LEASES_URL
           scope: RUN_AND_BUILD_TIME
           value: http://leases:8080/api/leases
-      github:
+      git:
         branch: main
-        repo: digitalocean/template-job-manager
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: /
       name: task-service
       run_command: npm start
 
@@ -58,9 +61,10 @@ spec:
         - key: NEXT_PUBLIC_URL
           scope: RUN_AND_BUILD_TIME
           value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
-      github:
+      git:
         branch: main
-        repo: digitalocean/template-job-manager
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: /
       name: leases
       run_command: npm start
 
@@ -71,7 +75,7 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-        source_dir: /
+      source_dir: /
       envs:
         - key: TASK_SERVICE_URL
           value: https://demo-job-manager-mhyct.ondigitalocean.app
