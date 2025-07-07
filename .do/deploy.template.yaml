@@ -5,6 +5,6 @@ spec:
   services:
     - environment_slug: node-js
       git:
-        branch: task-service
+        branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
       name: template-job-manager
