@@ -1,10 +1,12 @@
-## Get Started
+# Get Started
 
 This guide explains how to use the DigitalOcean App Platform to run a Job Manager that demonstrates leases in a scalable environment.
 
+For additional information, see the [Using Leases to Manage Multi-Instance Environments](https://www.digitalocean.com/community/tutorials/manage-multi-instance-environments-using-leases) tutorial.
+
 **Note**: Following these steps may result in charges for the use of DigitalOcean services.
 
-### Requirements
+## Requirements
 
 * You need a DigitalOcean account. If you do not already have one, first [sign up](https://cloud.digitalocean.com/registrations/new).
 
@@ -22,8 +24,7 @@ After forking the repo, you can view the same README in your own GitHub org; for
 
 ## CI
 
-This project uses GitHub Actions to run tests on every push to the main branch. There is a workflow to validate the App Specs against the `Propose()` API and also to perform local `doctl apps dev build` on them to verify buildback compatibility..
-
+This project uses GitHub Actions to run tests on every push to the main branch. There is a workflow to validate the App Specs against the `Propose()` API and also to perform local `doctl apps dev build` on them to verify buildpack compatibility.
 
 ## Learn More
 
@@ -32,6 +33,7 @@ To learn more about App Platform and how to manage and update your application, 
 ## Delete the App
 
 When you no longer need this sample application running live, you can delete it by following these steps:
+
 1. Visit the [Apps control panel](https://cloud.digitalocean.com/apps).
 2. Navigate to the sample app.
 3. In the **Settings** tab, click **Destroy**.
