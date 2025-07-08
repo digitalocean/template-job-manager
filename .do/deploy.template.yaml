@@ -2,9 +2,81 @@
 
 spec:
   name: template-job-manager
+
+  databases:
+  - engine: PG
+    name: db-task-service
+  - engine: PG
+    name: db-leases
+
+  jobs: 
+  - name: migrations-task-service
+    environment_slug: node-js
+    envs:
+    - key: DATABASE_URL
+      scope: RUN_TIME
+      value: ${db-task-service.DATABASE_URL}
+    git:
+      branch: main
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    source_dir: /
+    run_command: npx prisma migrate deploy
+
+  - name: migrations=leases
+    environment_slug: node-js
+    envs:
+    - key: DATABASE_URL
+      scope: RUN_TIME
+      value: ${db-leases.DATABASE_URL}
+    git:
+      branch: main
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    source_dir: /
+    run_command: npx prisma migrate deploy
+  
   services:
     - environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-task-service.DATABASE_URL}
+        - key: NEXT_PUBLIC_URL
+          scope: RUN_AND_BUILD_TIME
+          value: https://demo-job-manager-mhyct.ondigitalocean.app
+        - key: SERVICE_LEASES_URL
+          scope: RUN_AND_BUILD_TIME
+          value: http://leases:8080/api/leases
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-      name: template-job-manager
+      source_dir: /
+      name: task-service
+      run_command: npm start
+
+    - environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-leases.DATABASE_URL}
+        - key: NEXT_PUBLIC_URL
+          scope: RUN_AND_BUILD_TIME
+          value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
+      git:
+        branch: main
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: /
+      name: leases
+      run_command: npm start
+
+
+  workers:
+    - name: task-worker
+      environment_slug: node-js
+      git:
+        branch: main
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: /
+      envs:
+        - key: TASK_SERVICE_URL
+          value: https://demo-job-manager-mhyct.ondigitalocean.app
+      run_command: node ./main.js
