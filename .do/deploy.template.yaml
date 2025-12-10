@@ -22,7 +22,7 @@ spec:
     source_dir: /
     run_command: npx prisma migrate deploy
 
-  - name: migrations=leases
+  - name: migrations-leases
     environment_slug: node-js
     envs:
     - key: DATABASE_URL
