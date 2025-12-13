@@ -15,26 +15,25 @@ features:
 ingress:
   rules:
     - component:
-        name: task-service
-      match:
-        path:
-          prefix: /
-    - component:
         name: leases
       match:
         path:
           prefix: /leases
+    - component:
+        name: task-service
+      match:
+        path:
+          prefix: /
 jobs:
   - environment_slug: node-js
     envs:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db-task-service.DATABASE_URL}
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/sample-job-manager
-    instance_count: 2
+      repo_clone_url: https://github.com/digitalocean/sample-job-manager.git
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     kind: PRE_DEPLOY
     name: migrations-task-service
@@ -45,11 +44,10 @@ jobs:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db-leases.DATABASE_URL}
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/template-job-manager
-    instance_count: 2
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     kind: PRE_DEPLOY
     name: migrations-leases
@@ -69,12 +67,11 @@ services:
       - key: SERVICE_LEASES_URL
         scope: RUN_AND_BUILD_TIME
         value: http://leases:8080/api/leases
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/template-job-manager
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
     http_port: 8080
-    instance_count: 3
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-service
     run_command: npm start
@@ -87,12 +84,11 @@ services:
       - key: NEXT_PUBLIC_URL
         scope: RUN_AND_BUILD_TIME
         value: https://demo-job-manager-mhyct.ondigitalocean.app/leases
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/template-job-manager
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
     http_port: 8080
-    instance_count: 2
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: leases
     run_command: npm start
@@ -103,11 +99,10 @@ workers:
       - key: TASK_SERVICE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://demo-job-manager-mhyct.ondigitalocean.app
-    github:
+    git:
       branch: main
-      deploy_on_push: true
-      repo: digitalocean/template-job-manager
-    instance_count: 3
+      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-worker
     run_command: node ./main.js
