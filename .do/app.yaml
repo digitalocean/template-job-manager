@@ -33,7 +33,7 @@ jobs:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/sample-job-manager.git
-    instance_count: 2
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     kind: PRE_DEPLOY
     name: migrations-task-service
@@ -47,7 +47,7 @@ jobs:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    instance_count: 2
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     kind: PRE_DEPLOY
     name: migrations-leases
@@ -71,7 +71,7 @@ services:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
     http_port: 8080
-    instance_count: 3
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-service
     run_command: npm start
@@ -88,7 +88,7 @@ services:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
     http_port: 8080
-    instance_count: 2
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: leases
     run_command: npm start
@@ -102,7 +102,7 @@ workers:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    instance_count: 3
+    instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     name: task-worker
     run_command: node ./main.js

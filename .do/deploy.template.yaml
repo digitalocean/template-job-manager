@@ -50,8 +50,6 @@ spec:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
       source_dir: /
-      instance_count: 1
-      instance_size_slug: apps-s-1vcpu-1gb
       name: task-service
       run_command: npm start
 
@@ -78,8 +76,6 @@ spec:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
       source_dir: /
-      instance_count: 1
-      instance_size_slug: apps-s-1vcpu-1gb
       envs:
         - key: TASK_SERVICE_URL
           value: https://demo-job-manager-mhyct.ondigitalocean.app
