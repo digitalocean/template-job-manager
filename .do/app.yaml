@@ -15,15 +15,15 @@ features:
 ingress:
   rules:
     - component:
-        name: task-service
-      match:
-        path:
-          prefix: /
-    - component:
         name: leases
       match:
         path:
           prefix: /leases
+    - component:
+        name: task-service
+      match:
+        path:
+          prefix: /      
 jobs:
   - environment_slug: node-js
     envs:
