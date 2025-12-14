@@ -23,7 +23,7 @@ ingress:
         name: task-service
       match:
         path:
-          prefix: /      
+          prefix: /
 jobs:
   - environment_slug: node-js
     envs:
