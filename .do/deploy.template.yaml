@@ -19,7 +19,7 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    source_dir: /
+    source_dir: task-service
     run_command: npx prisma migrate deploy
 
   - name: migrations-leases
@@ -31,7 +31,7 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    source_dir: /
+    source_dir: leases
     run_command: npx prisma migrate deploy
   
   services:
@@ -49,8 +49,9 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-      source_dir: /
+      source_dir: task-service
       name: task-service
+      build_command: npm install && npm run build
       run_command: npm start
 
     - environment_slug: node-js
@@ -64,8 +65,9 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-      source_dir: /
+      source_dir: leases
       name: leases
+      build_command: npm install && npm run build
       run_command: npm start
 
 
@@ -75,9 +77,10 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-      source_dir: /
+      source_dir: task-worker
       instance_count: 1
       instance_size_slug: apps-s-1vcpu-1gb
+      build_command: npm install
       envs:
         - key: TASK_SERVICE_URL
           value: https://demo-job-manager-mhyct.ondigitalocean.app
