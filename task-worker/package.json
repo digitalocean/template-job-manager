@@ -4,6 +4,7 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
+    "build": "echo \"no build step\"",
     "start": "node ./main.js"
   },
   "repository": {
@@ -21,8 +22,7 @@
   "bin": {
     "task-worker": "./main.js"
   },
-  "engines": {
-    "npm": "10.x",
-    "node": "22.x"
+ "engines": {
+    "node": "18.x"
   }
 }

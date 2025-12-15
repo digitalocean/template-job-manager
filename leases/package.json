@@ -7,7 +7,7 @@
     "build": "npx prisma generate && next build",
     "db:migrate": "npx prisma migrate dev",
     "db:push": "npx prisma db push",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -37,5 +37,8 @@
   },
   "exports": {
     "./LeasesClient": "./src/app/lib/leases-client.js"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
