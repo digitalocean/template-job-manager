@@ -4,36 +4,47 @@ spec:
   name: template-job-manager
 
   databases:
-  - engine: PG
-    name: db-task-service
-  - engine: PG
-    name: db-leases
+    - engine: PG
+      name: db-task-service
+    - engine: PG
+      name: db-leases
+  ingress:
+    rules:
+      - component:
+          name: leases
+        match:
+          path:
+            prefix: /leases
+      - component:
+          name: task-service
+        match:
+          path:
+            prefix: /
+  jobs:
+    - name: migrations-task-service
+      environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-task-service.DATABASE_URL}
+      git:
+        branch: main
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: task-service
+      run_command: npx prisma migrate deploy
 
-  jobs: 
-  - name: migrations-task-service
-    environment_slug: node-js
-    envs:
-    - key: DATABASE_URL
-      scope: RUN_TIME
-      value: ${db-task-service.DATABASE_URL}
-    git:
-      branch: main
-      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    source_dir: task-service
-    run_command: npx prisma migrate deploy
+    - name: migrations-leases
+      environment_slug: node-js
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_TIME
+          value: ${db-leases.DATABASE_URL}
+      git:
+        branch: main
+        repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      source_dir: leases
+      run_command: npx prisma migrate deploy
 
-  - name: migrations-leases
-    environment_slug: node-js
-    envs:
-    - key: DATABASE_URL
-      scope: RUN_TIME
-      value: ${db-leases.DATABASE_URL}
-    git:
-      branch: main
-      repo_clone_url: https://github.com/digitalocean/template-job-manager.git
-    source_dir: leases
-    run_command: npx prisma migrate deploy
-  
   services:
     - environment_slug: node-js
       envs:
@@ -69,7 +80,6 @@ spec:
       name: leases
       build_command: npm install && npm run build
       run_command: npm start
-
 
   workers:
     - name: task-worker
