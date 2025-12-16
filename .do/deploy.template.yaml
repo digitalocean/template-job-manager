@@ -8,7 +8,18 @@ spec:
     name: db-task-service
   - engine: PG
     name: db-leases
-
+  ingress:
+   rules:
+    - component:
+        name: leases
+      match:
+        path:
+          prefix: /leases
+    - component:
+        name: task-service
+      match:
+        path:
+          prefix: /
   jobs: 
   - name: migrations-task-service
     environment_slug: node-js
