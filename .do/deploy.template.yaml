@@ -30,6 +30,8 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb  
     source_dir: task-service
     run_command: npx prisma migrate deploy
 
@@ -42,6 +44,8 @@ spec:
     git:
       branch: main
       repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb  
     source_dir: leases
     run_command: npx prisma migrate deploy
   
@@ -60,6 +64,8 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb  
       source_dir: task-service
       name: task-service
       build_command: npm install && npm run build
@@ -76,6 +82,8 @@ spec:
       git:
         branch: main
         repo_clone_url: https://github.com/digitalocean/template-job-manager.git
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb  
       source_dir: leases
       name: leases
       build_command: npm install && npm run build
