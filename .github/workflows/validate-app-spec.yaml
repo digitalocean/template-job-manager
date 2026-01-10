@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # fetch all history of all branches
       - id: files
@@ -57,7 +57,7 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Propose App Spec (new app)
         run: doctl apps propose --spec "${{ matrix.file }}"
       - name: Extract Components
@@ -84,6 +84,6 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Perform `doctl apps dev build`
         run: doctl apps dev build --no-cache --spec "${{ fromJSON(needs.propose-app-spec.outputs.components_to_build).file }}" "${{ matrix.component }}"

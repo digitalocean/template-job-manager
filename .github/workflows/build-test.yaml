@@ -16,7 +16,7 @@ jobs:
         directory: [ "task-service", "leases" ] # Add more directories here
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -46,7 +46,7 @@ jobs:
         directory: [ "task-service", "leases" ] # Add more directories here
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -83,7 +83,7 @@ jobs:
         directory: [ "task-service", "leases" ] # Add more directories here
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
